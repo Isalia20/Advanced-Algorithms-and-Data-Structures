@@ -3,10 +3,10 @@
 
 using namespace std;
 
-void check_build_func_large(bool is_random_skip_list){
+SkipList check_build_func_large(bool is_random_skip_list){
     // Create a vector with numbers from 1 to 1,000,000
     std::vector<int> numbers;
-    for (int i = 1; i <= 1000000; ++i) {
+    for (int i = 1; i <= 1000000; i++) {
         numbers.push_back(i);
     }
 
@@ -23,9 +23,10 @@ void check_build_func_large(bool is_random_skip_list){
     } else {
         sl.build_skip_list_deterministic(numbers);
     }
+    return sl;
 }
 
-void check_build_func_small(bool is_random_skip_list){
+SkipList check_build_func_small(bool is_random_skip_list){
     // Create a vector with small amount of numbers
     std::vector<int> numbers = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
@@ -39,9 +40,10 @@ void check_build_func_small(bool is_random_skip_list){
         cout << "SKIP LIST DETERMINISTIC SMALL" << endl;
         sl.print();
     }
+    return sl;
 }
 
-void check_build_func_one(bool is_random_skip_list){
+SkipList check_build_func_one(bool is_random_skip_list){
     // Create a vector with a single element
     std::vector<int> numbers = {1};
 
@@ -56,6 +58,15 @@ void check_build_func_one(bool is_random_skip_list){
         cout << "SKIP LIST DETERMINISTIC ONE" << endl;
         sl.print();
     }
+    return sl;
+}
+
+bool check_find_element(){
+    SkipList sl;
+
+    sl = check_build_func_large(false);
+    cout << sl.find_element(5) -> val << endl;
+    return true;
 }
 
 bool check_build_funcs(){
@@ -74,5 +85,6 @@ bool check_build_funcs(){
 
 int main() {
     check_build_funcs();
+    check_find_element();
     return 0;
 }
