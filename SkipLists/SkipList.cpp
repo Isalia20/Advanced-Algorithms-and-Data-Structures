@@ -257,7 +257,6 @@ SkipList::Node* SkipList::find_element(int value){
     */
     
     SkipList::Node* head_copy = this -> head;
-    
     // If it's already on the value we are searching
     if (head_copy -> val == value){
         return head_copy;
@@ -420,8 +419,13 @@ void SkipList::remove_element_min_max(SkipList::Node* node_to_remove, bool is_ma
         SkipList::Node* node_to_remove_copy_traverse = node_to_remove_copy; // copy for traversal
     
         while (node_to_remove_copy != NULL){
-            node_prev -> prev = node_to_remove_copy_traverse -> prev; // TODO might lead to segfaults if prev doesn't exist
-            node_prev -> prev -> next = node_prev; 
+
+            if (node_prev != node_to_remove_copy_traverse -> prev){ // to avoid cyclical pointers
+                node_prev -> prev = node_to_remove_copy_traverse -> prev;
+            }
+            if (node_prev -> prev != NULL){
+                node_prev -> prev -> next = node_prev;
+            }
             node_to_remove_copy_traverse = node_to_remove_copy_traverse -> up; // go up for the original node
             
             // For the next iteration
@@ -443,22 +447,31 @@ void SkipList::remove_element_min_max(SkipList::Node* node_to_remove, bool is_ma
         }
 
         node_next -> prev = nullptr; // level 0 cancel previous pointer for the next node
-
         this -> head = node_next; // save the head(start of the skip list)
+
         delete(node_to_remove); // remove the level 0 node
 
         // Create up node if it doesnt exist on the next node(initial head -> next)
         node_next = create_node_up_if_not_exist(node_next);
         SkipList::Node* node_to_remove_copy_traverse = node_to_remove_copy; // copy for traversal
-
+        
         while (node_to_remove_copy != NULL){
-            node_next -> next = node_to_remove_copy_traverse -> next; // TODO might lead to segfaults if next doesn't exist
-            node_next -> next -> prev = node_next; 
+            if (node_next != node_to_remove_copy_traverse -> next){ // to avoid cyclical pointers
+                node_next -> next = node_to_remove_copy_traverse -> next;
+            }
+            if (node_next -> next != NULL){
+                node_next -> next -> prev = node_next; 
+            }
             node_to_remove_copy_traverse = node_to_remove_copy_traverse -> up; // go up for the original node
-            node_next = create_node_up_if_not_exist(node_next);
+            
+            // For the next iteration
+            if (node_to_remove_copy_traverse != NULL){
+                node_next = create_node_up_if_not_exist(node_next);
+            }
             delete(node_to_remove_copy); // delete the node we have just rewired pointers for 
             node_to_remove_copy = node_to_remove_copy_traverse; // save it so we can delete further nodes as well
         }
+
     }
 }
 
@@ -466,6 +479,10 @@ void SkipList::remove_element(int value){
     SkipList::Node* node_to_be_removed = find_element(value);
     if (node_to_be_removed == NULL){
         throw std::runtime_error("Element you want to remove doesn't exist");
+    }
+
+    if (this -> tail -> val == this -> head -> val){
+        throw std::runtime_error("You wanted to remove the last element!");
     }
 
     if (node_to_be_removed -> prev == NULL){ // if we are removing the minimum
@@ -479,9 +496,11 @@ void SkipList::remove_element(int value){
 
     while (node_to_be_removed != NULL){
         SkipList::Node* node_to_be_removed_traverse = node_to_be_removed; // make a copy for traversal
-
+        
         node_to_be_removed_traverse -> prev -> next = node_to_be_removed_traverse -> next; // connect the left to right
-        node_to_be_removed_traverse -> next -> prev = node_to_be_removed_traverse -> prev; // connect the right to left
+        if (node_to_be_removed_traverse -> next != NULL){ // if next element isn't null
+            node_to_be_removed_traverse -> next -> prev = node_to_be_removed_traverse -> prev; // connect the right to left
+        }
 
         node_to_be_removed = node_to_be_removed -> up; // go up with the original pointer so we can later free the removed node
         delete(node_to_be_removed_traverse); // delete the node and free up pointer
