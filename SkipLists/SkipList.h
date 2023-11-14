@@ -29,6 +29,7 @@ public:
     int MAX_LVL; // max level of the skip list.
     Node* head;
     Node* tail;
+    int ELEMENT_COUNT;
     vector<vector<Node*>> ALL_NODES;
 
     SkipList(); // constructor
@@ -45,13 +46,14 @@ public:
     Node* find_element(int value);
     vector<Node*> find_closest_elements(int value);
     Node* go_up_n_times(Node* node, int n);
-    void insert_element_max(int value, Node* node);
-    void insert_element_min(int value, Node* node);
+    void insert_element_max(int value, Node* node, int max_lvl_new);
+    void insert_element_min(int value, Node* node, int max_lvl_new);
     Node* create_node_up_if_not_exist(Node* node);
     void remove_nodes_without_applying_connections(Node* node);
     void remove_element_min_max(Node* node_to_remove, bool is_max);
     void remove_element(int value);
     void insert_element(int value);
+    Node* go_up_till_end(Node* node);
     void print();
 };
 
