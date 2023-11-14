@@ -1,3 +1,7 @@
 skip_list
 skip_list_tests
 .DS_Store
+*.yml
+*.plist
+*.json
+main

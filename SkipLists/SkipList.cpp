@@ -1,10 +1,16 @@
 #include "SkipList.h"
 #include <iostream>
 #include <vector>
+#include <random>
 
 using namespace std;
 
-SkipList::SkipList(){}; // constructor
+// for random int generation 0 and 1
+int SkipList::next(){
+    return distrib(gen);
+}
+
+SkipList::SkipList() : gen(rd()), distrib(0, 1) {}; // constructor including random number generator
 SkipList::~SkipList() { 
     SkipList::Node* curNode = head;
     unordered_set<SkipList::Node*> nodesToDelete; // stores unique nodes
@@ -32,7 +38,7 @@ SkipList::~SkipList() {
     for(auto node : nodesToDelete) {
         delete node;
     }
-}
+};
 
 void SkipList::build_up_rand(SkipList::Node* node, vector<vector<SkipList::Node*>> &last_nodes){
     SkipList::Node* node_traverse = node;
@@ -40,7 +46,7 @@ void SkipList::build_up_rand(SkipList::Node* node, vector<vector<SkipList::Node*
     SkipList::Node* node_prev; // used for connecting nodes horizontally
     int counter = 0;
 
-    while (rand() % 2 && counter < this -> MAX_LVL){
+    while (SkipList::next() && counter < this -> MAX_LVL){
         counter++;
         SkipList::Node* node_up = new SkipList::Node;
         node_up -> val = node_traverse -> val;
@@ -226,7 +232,7 @@ vector<SkipList::Node*> SkipList::find_closest_element_rec(int value, SkipList::
     while (head_copy -> next != NULL && head_copy -> next -> val <= value){
         head_copy = head_copy -> next;
         if (head_copy -> val == value){
-            return {nullptr};
+            return {head_copy}; // if already exists return the node itself and will be dealt in the function find_closest_elements
         }
     }
     // If we traversed to the end of the list and didn't find the element
@@ -244,8 +250,12 @@ SkipList::Node* SkipList::get_bottom_node(SkipList::Node* node){
     so the return of the function is consistent
     (i.e. doesn't return middle/top/bottom randomly)
     */
-    while (node -> down != NULL){
-        node = node -> down;
+    if (node == NULL){ // if we already get a nullptr
+        return node;
+    } else {
+        while (node -> down != NULL){
+            node = node -> down;
+        }
     }
     return node;
 }
@@ -285,7 +295,7 @@ vector<SkipList::Node*> SkipList::find_closest_elements(int value){
     
     // If it's already on the value we are searching
     if (head_copy -> val == value){
-        return {nullptr};
+        return {head_copy -> prev, head_copy -> next};
     }
     // go to the top of the skip list(upper left corner)
     while (head_copy -> up != NULL){
@@ -294,9 +304,20 @@ vector<SkipList::Node*> SkipList::find_closest_elements(int value){
     vector<SkipList::Node*> nodes = SkipList::find_closest_element_rec(value, head_copy);
 
     if (nodes.size() == 1){
-        return {nullptr}; // if element already exists TODO will deal with this later
+        nodes[0] = get_bottom_node(nodes[0]);
+        SkipList::Node* left_node = nullptr;
+        SkipList::Node* right_node = nullptr;
+
+        // left pointer
+        if (nodes[0] -> prev != NULL){
+            left_node = nodes[0] -> prev;
+        }
+        // right pointer
+        if (nodes[0] -> next != NULL){
+            right_node = nodes[0] -> next;
+        }
+        return {left_node, right_node};
     } else if (nodes[1] == NULL){ // if we have maximum case
-        // TODO possibly rewrite this
         nodes[0] = get_bottom_node(nodes[0]);
         nodes[1] = nodes[0];
         nodes[0] = nullptr;
@@ -321,44 +342,84 @@ SkipList::Node* SkipList::go_up_n_times(SkipList::Node* node, int n){
     return node;
 }
 
-void SkipList::insert_element_min_max(int value, bool is_max, SkipList::Node* node){
-    /* This function is called if we have only a single element in the skip list */
+void SkipList::insert_element_min(int value, SkipList::Node* node){
+
     SkipList::Node* start = new SkipList::Node; // maintain pointer to the start of the new ll
     SkipList::Node* traverse_node = start; // for traversing and adding nodes to the new ll
     SkipList::Node* node_copy = node; // copy of the head or tail of skip list
     start -> val = value; // assign value to the node
     int height = 0;
-    
-    if (is_max){
-        start -> prev = node_copy; // if maximum(inserted on the right)
-        node_copy -> next = start; // doubly linked
-        this -> tail = start;
-    } else {
-        start -> next = node_copy; // if minimum(inserted on the left)
-        node_copy -> prev = start; // doubly linked
-        this -> head = start;
-    }
+    int insert_height = 0; // TODO MIGHT NOT NEED THIS VARIABLE AND CAN JUST USE HEIGHT
 
-    
-    while (height < MAX_LVL){
+    start -> next = node_copy; // if minimum(inserted on the left)
+    node_copy -> prev = start; // doubly linked
+    this -> head = start;
+
+    while (height < MAX_LVL){ // for start of the list we have to grow it to the top due to the reason that searching relies on the first element having the highest level
+        insert_height++;
         SkipList::Node* insert_node_up = new SkipList::Node;
         // two way connection
         insert_node_up -> down = traverse_node;
         traverse_node -> up = insert_node_up;
         traverse_node = insert_node_up;
+
+        // search for the node with appropriate height
+        while (node_copy -> next != NULL && node_copy -> height < insert_height){
+            node_copy = node_copy -> next;
+        }
+
+        if (node_copy -> height >= insert_height){
+            SkipList::Node* node_for_connecting = node_copy;
+            node_for_connecting = go_up_n_times(node_for_connecting, insert_height);
+            traverse_node -> next = node_for_connecting;
+            node_for_connecting -> prev = traverse_node;
+        }
+        //  else {
+        //     traverse_node -> next = NULL;
+        // }
+        insert_node_up -> val = value;
+        height++;
+    }
+    start -> height = height; // assign height to the bottom most node
+}
+
+void SkipList::insert_element_max(int value, SkipList::Node* node){
+    SkipList::Node* start = new SkipList::Node; // maintain pointer to the start of the new ll
+    SkipList::Node* traverse_node = start; // for traversing and adding nodes to the new ll
+    SkipList::Node* node_copy = node; // copy of the head or tail of skip list
+    start -> val = value; // assign value to the node
+    int height = 0;
+    int insert_height = 0; // TODO MIGHT NOT NEED THIS VARIABLE AND CAN JUST USE HEIGHT
+    
+    start -> prev = node_copy; // if maximum(inserted on the right)
+    node_copy -> next = start; // doubly linked
+    this -> tail = start;
+
+    while (distrib(gen) && height < MAX_LVL){
+        insert_height++;
+        SkipList::Node* insert_node_up = new SkipList::Node;
+        // two way connection
+        // TODO BUG we are creating nodes and connecting them to each other by up and down but they might not even connect to prev/next
+        insert_node_up -> down = traverse_node;
+        traverse_node -> up = insert_node_up;
+        traverse_node = insert_node_up;
         
-        node_copy = node_copy -> up; // go up to later connect it to new nodes
-        if (is_max){
-            insert_node_up -> prev = node_copy;
-            node_copy -> next = insert_node_up; //TODO bug here
-        } else {
-            insert_node_up -> next = node_copy;
-            node_copy -> prev = insert_node_up;
+        // search for the node with appropriate height
+        while (node_copy -> prev != NULL && node_copy -> height < insert_height){ // search to the left before we reach the start or find the appropriate node to insert the next level element in(for it to be then connected)
+            node_copy = node_copy -> prev;
+        }
+        if (node_copy -> height >= insert_height){
+            SkipList::Node* node_for_connecting = node_copy;
+            node_for_connecting = go_up_n_times(node_for_connecting, insert_height);
+            traverse_node -> prev = node_for_connecting;
+            node_for_connecting -> next = traverse_node;
         }
         insert_node_up -> val = value;
         height++;
     }
+    start -> height = height; // assign height to the bottom most node
 }
+
 
 SkipList::Node* SkipList::create_node_up_if_not_exist(SkipList::Node* node){
     if (node -> up == NULL){
@@ -400,7 +461,7 @@ void SkipList::remove_element_min_max(SkipList::Node* node_to_remove, bool is_ma
     is dealt through this function */
     if (is_max){
         // connect level 0
-        SkipList::Node* node_to_remove_copy = node_to_remove -> up;
+        SkipList::Node* node_to_remove_copy = node_to_remove -> up; // TODO rename this why is it called copy lol
         SkipList::Node* node_prev = node_to_remove -> prev;            
         
         if (node_prev -> prev == NULL){ // Meaning if node_prev will be the only element left in skip list after removing this one
@@ -409,21 +470,24 @@ void SkipList::remove_element_min_max(SkipList::Node* node_to_remove, bool is_ma
             return;
         }
 
-        node_prev -> next = nullptr; // level 0 cancel previous pointer for the next node
+        node_to_remove -> prev = nullptr; // remove previous pointer of the node we are deleting
+        node_prev -> next = nullptr; // level 0 cancel previous node's pointer for the next node(i.e. node_to_remove)
         this -> tail = node_prev; // save the tail(end of the skip list)
 
         delete(node_to_remove); // remove the level 0 node
 
+        SkipList::Node* node_to_remove_copy_traverse;
         // Create up node if it doesnt exist on the next node(initial head -> next)
-        node_prev = create_node_up_if_not_exist(node_prev);
-        SkipList::Node* node_to_remove_copy_traverse = node_to_remove_copy; // copy for traversal
+        if (node_to_remove_copy != NULL){
+            node_prev = create_node_up_if_not_exist(node_prev);
+             node_to_remove_copy_traverse = node_to_remove_copy; // copy for traversal
+        }
     
         while (node_to_remove_copy != NULL){
-
             if (node_prev != node_to_remove_copy_traverse -> prev){ // to avoid cyclical pointers
                 node_prev -> prev = node_to_remove_copy_traverse -> prev;
             }
-            if (node_prev -> prev != NULL){
+            if (node_prev -> prev != NULL){ // connect the previous node both ways
                 node_prev -> prev -> next = node_prev;
             }
             node_to_remove_copy_traverse = node_to_remove_copy_traverse -> up; // go up for the original node
@@ -471,7 +535,6 @@ void SkipList::remove_element_min_max(SkipList::Node* node_to_remove, bool is_ma
             delete(node_to_remove_copy); // delete the node we have just rewired pointers for 
             node_to_remove_copy = node_to_remove_copy_traverse; // save it so we can delete further nodes as well
         }
-
     }
 }
 
@@ -510,19 +573,18 @@ void SkipList::remove_element(int value){
 
 void SkipList::insert_element(int value){
     if (find_element(value) != NULL){
-        throw std::runtime_error("Element with this value is already in the skip list!"); // TODO possibly rework to allow multiple same values
+        throw std::runtime_error("Element with this value is already in the skip list!");
     }
     vector<SkipList::Node*> nodes = find_closest_elements(value);
     
     if (nodes[1] == NULL){ // if we have inserted the minimum
-        insert_element_min_max(value, 0, this -> head); // min value
+        insert_element_min(value, this-> head);
         return;
     }
     if (nodes[0] == NULL){
-        insert_element_min_max(value, 1, this -> tail); // max value
+        insert_element_max(value, this -> tail);
         return;
     }
-
 
     SkipList::Node* start = new SkipList::Node; // maintain pointer to the start of the new ll
     SkipList::Node* traverse_node = start; // for traversing and adding nodes to the new ll
@@ -537,7 +599,7 @@ void SkipList::insert_element(int value){
 
     // Now we grow it till we randomly reach the end while also connecting the nodes to the closest
     // ones on the same level
-    while (rand() % 2 && insert_height <= this -> MAX_LVL){
+    while (SkipList::next() && insert_height <= this -> MAX_LVL){
         insert_height++; // height variable indicates on which height we currently are
         SkipList::Node* start_copy_left = start;
         SkipList::Node* start_copy_right = start;
