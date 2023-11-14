@@ -399,7 +399,6 @@ void SkipList::insert_element_max(int value, SkipList::Node* node){
         insert_height++;
         SkipList::Node* insert_node_up = new SkipList::Node;
         // two way connection
-        // TODO BUG we are creating nodes and connecting them to each other by up and down but they might not even connect to prev/next
         insert_node_up -> down = traverse_node;
         traverse_node -> up = insert_node_up;
         traverse_node = insert_node_up;
@@ -461,7 +460,7 @@ void SkipList::remove_element_min_max(SkipList::Node* node_to_remove, bool is_ma
     is dealt through this function */
     if (is_max){
         // connect level 0
-        SkipList::Node* node_to_remove_copy = node_to_remove -> up; // TODO rename this why is it called copy lol
+        SkipList::Node* node_to_remove_up = node_to_remove -> up; // TODO rename this why is it called copy lol
         SkipList::Node* node_prev = node_to_remove -> prev;            
         
         if (node_prev -> prev == NULL){ // Meaning if node_prev will be the only element left in skip list after removing this one
@@ -478,12 +477,12 @@ void SkipList::remove_element_min_max(SkipList::Node* node_to_remove, bool is_ma
 
         SkipList::Node* node_to_remove_copy_traverse;
         // Create up node if it doesnt exist on the next node(initial head -> next)
-        if (node_to_remove_copy != NULL){
+        if (node_to_remove_up != NULL){
             node_prev = create_node_up_if_not_exist(node_prev);
-             node_to_remove_copy_traverse = node_to_remove_copy; // copy for traversal
+             node_to_remove_copy_traverse = node_to_remove_up; // copy for traversal
         }
     
-        while (node_to_remove_copy != NULL){
+        while (node_to_remove_up != NULL){
             if (node_prev != node_to_remove_copy_traverse -> prev){ // to avoid cyclical pointers
                 node_prev -> prev = node_to_remove_copy_traverse -> prev;
             }
@@ -496,12 +495,12 @@ void SkipList::remove_element_min_max(SkipList::Node* node_to_remove, bool is_ma
             if (node_to_remove_copy_traverse != NULL){
                 node_prev = create_node_up_if_not_exist(node_prev);
             }
-            delete(node_to_remove_copy); // delete the node we have just rewired pointers for 
-            node_to_remove_copy = node_to_remove_copy_traverse; // save it so we can delete further nodes as well
+            delete(node_to_remove_up); // delete the node we have just rewired pointers for 
+            node_to_remove_up = node_to_remove_copy_traverse; // save it so we can delete further nodes as well
         }
     } else {
         // connect level 0
-        SkipList::Node* node_to_remove_copy = node_to_remove -> up;
+        SkipList::Node* node_to_remove_up = node_to_remove -> up;
         SkipList::Node* node_next = node_to_remove -> next;
 
         if (node_next -> next == NULL){
@@ -517,9 +516,9 @@ void SkipList::remove_element_min_max(SkipList::Node* node_to_remove, bool is_ma
 
         // Create up node if it doesnt exist on the next node(initial head -> next)
         node_next = create_node_up_if_not_exist(node_next);
-        SkipList::Node* node_to_remove_copy_traverse = node_to_remove_copy; // copy for traversal
+        SkipList::Node* node_to_remove_copy_traverse = node_to_remove_up; // copy for traversal
         
-        while (node_to_remove_copy != NULL){
+        while (node_to_remove_up != NULL){
             if (node_next != node_to_remove_copy_traverse -> next){ // to avoid cyclical pointers
                 node_next -> next = node_to_remove_copy_traverse -> next;
             }
@@ -532,8 +531,8 @@ void SkipList::remove_element_min_max(SkipList::Node* node_to_remove, bool is_ma
             if (node_to_remove_copy_traverse != NULL){
                 node_next = create_node_up_if_not_exist(node_next);
             }
-            delete(node_to_remove_copy); // delete the node we have just rewired pointers for 
-            node_to_remove_copy = node_to_remove_copy_traverse; // save it so we can delete further nodes as well
+            delete(node_to_remove_up); // delete the node we have just rewired pointers for 
+            node_to_remove_up = node_to_remove_copy_traverse; // save it so we can delete further nodes as well
         }
     }
 }
