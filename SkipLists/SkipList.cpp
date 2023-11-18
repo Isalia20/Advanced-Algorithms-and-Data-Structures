@@ -766,6 +766,24 @@ void SkipList::insert_element(int value){
     start -> height = insert_height;
 }
 
+std::vector<int> SkipList::get_level_node_count(){
+    std::vector<int> result;
+    SkipList::Node* node_copy = this -> head;
+    node_copy = go_up_till_end(node_copy); 
+
+    while (node_copy != this -> head){
+        SkipList::Node* node_copy_traverse_right = node_copy;
+        int num_elements_per_level = 0;
+        while (node_copy_traverse_right != nullptr){
+            num_elements_per_level++;
+            node_copy_traverse_right = node_copy_traverse_right -> next;
+        }
+        node_copy = node_copy -> down;
+        result.push_back(num_elements_per_level);
+    }
+    return result;
+}
+
 // Print the skip list
 void SkipList::print(){
     SkipList::Node* top_left = this -> head;

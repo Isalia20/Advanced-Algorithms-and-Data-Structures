@@ -14,4 +14,7 @@ skip_list_tests: force skip_list_tests.cpp
 bst: force bst.cpp
 	$(CXX) $(CXXFLAGS) -o bst BST.cpp
 
+node_count: force get_node_count_per_level.cpp
+	$(CXX) $(CXXFLAGS) -o node_count get_node_count_per_level.cpp SkipList.cpp
+
 force: ;

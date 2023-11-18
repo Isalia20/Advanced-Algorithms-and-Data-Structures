@@ -51,6 +51,7 @@ public:
     void remove_element(int value);
     void insert_element(int value);
     Node* go_up_till_end(Node* traversalNode);
+    std::vector<int> get_level_node_count();
     void print();
 };
 

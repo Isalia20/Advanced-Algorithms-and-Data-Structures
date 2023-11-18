@@ -1,5 +1,6 @@
 skip_list
 skip_list_tests
+node_count
 .DS_Store
 *.yml
 *.plist
