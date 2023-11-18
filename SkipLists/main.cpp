@@ -29,15 +29,15 @@ int main(int argc, char* argv[]){
     for (int i = 0; i <= list_size; i++){
         list.push_back(i);
     }
-    sl -> build_skip_list_deterministic(list);
+    sl -> build_skip_list_random(list);
     ll -> build_ll(list);
     bst -> build_bst(list);
 
     // Open files to write results
-    std::ofstream myfile1("time_results_serch_last_deterministic_" + str_list_size + ".txt");
-    std::ofstream myfile2("time_results_serch_mid_deterministic_" + str_list_size + ".txt");
-    std::ofstream myfile3("time_results_serch_quarter_deterministic_" + str_list_size + ".txt");
-    std::ofstream myfile4("time_results_serch_third_quarter_deterministic_" + str_list_size + ".txt");
+    std::ofstream myfile1("time_results_search_last_random_" + str_list_size + ".txt");
+    std::ofstream myfile2("time_results_search_mid_random_" + str_list_size + ".txt");
+    std::ofstream myfile3("time_results_search_quarter_random_" + str_list_size + ".txt");
+    std::ofstream myfile4("time_results_search_third_quarter_random_" + str_list_size + ".txt");
 
     for(int i = 0; i < 200; ++i) {
         measure_and_log([&](){ ll->find_element(list_size); }, "LinkedList", myfile1); // End of the list
