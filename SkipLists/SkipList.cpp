@@ -13,7 +13,7 @@ int SkipList::next(){
 SkipList::SkipList() : gen(rd()), distrib(0, 1) {}; // constructor including random number generator
 SkipList::~SkipList() { 
     SkipList::Node* curNode = head;
-    unordered_set<SkipList::Node*> nodesToDelete; // stores unique nodes
+    std::unordered_set<SkipList::Node*> nodesToDelete; // stores unique nodes
 
     // Iterate over the SkipList to collect all unique nodes
     while(curNode) {
@@ -40,9 +40,9 @@ SkipList::~SkipList() {
     }
 };
 
-void SkipList::build_up_rand(SkipList::Node* node, vector<vector<SkipList::Node*>> &last_nodes){
+void SkipList::build_up_rand(SkipList::Node* node, std::vector<std::vector<SkipList::Node*>> &last_nodes, bool &has_tower){
     SkipList::Node* node_traverse = node;
-    vector<SkipList::Node*> upper_nodes;
+    std::vector<SkipList::Node*> upper_nodes;
     SkipList::Node* node_prev; // used for connecting nodes horizontally
     int counter = 0;
 
@@ -68,13 +68,14 @@ void SkipList::build_up_rand(SkipList::Node* node, vector<vector<SkipList::Node*
             }
         }
         upper_nodes.push_back(node_traverse);
+        has_tower = 1;
     }
     last_nodes.push_back(upper_nodes);
 }
 
-void SkipList::build_up(SkipList::Node* node, int level, vector<vector<SkipList::Node*>> &last_nodes){
+void SkipList::build_up(SkipList::Node* node, int level, std::vector<std::vector<SkipList::Node*>> &last_nodes){
     SkipList::Node* node_traverse = node;
-    vector<SkipList::Node*> upper_nodes;
+    std::vector<SkipList::Node*> upper_nodes;
     SkipList::Node* node_prev; // used for connecting nodes horizontally
     int counter = 0;
 
@@ -105,7 +106,7 @@ void SkipList::build_up(SkipList::Node* node, int level, vector<vector<SkipList:
     last_nodes.push_back(upper_nodes);
 }
 
-void SkipList::build_skip_list_random(vector<int> list){
+void SkipList::build_skip_list_random(std::vector<int>& list){
     sort(list.begin(), list.end());
     int i = 0;
     int max_level = std::log2(list.size());
@@ -115,7 +116,7 @@ void SkipList::build_skip_list_random(vector<int> list){
     // Start building the linked list
     SkipList::Node* p;
     SkipList::Node* p_prev = nullptr;
-    vector<vector<SkipList::Node*>> last_nodes;
+    std::vector<std::vector<SkipList::Node*>> last_nodes;
 
     while (i < list.size()){
         p = new SkipList::Node;
@@ -128,7 +129,7 @@ void SkipList::build_skip_list_random(vector<int> list){
             has_tower = 1;
         } else {
             // Randomly grow if we are in the middle(not at the start/end)
-            SkipList::build_up_rand(p, last_nodes);
+            SkipList::build_up_rand(p, last_nodes, has_tower);
         }
         p -> prev = p_prev;
         // make it doubly linked list
@@ -137,14 +138,9 @@ void SkipList::build_skip_list_random(vector<int> list){
         }
         p_prev = p;
         // Set the head of the skip list 
-        if (i == 0){
-            this -> head = p;
-        }
+        if (i == 0) this -> head = p;
         // Set the end of the skip list 
-        if (i == list.size() - 1){
-            this -> tail = p;
-        }
-
+        if (i == list.size() - 1) this -> tail = p;
         if (has_tower){
             p -> height = last_nodes[last_nodes.size() - 1].size(); // get the height of the tower(i.e. last tower inserted)
         } else {
@@ -152,18 +148,18 @@ void SkipList::build_skip_list_random(vector<int> list){
         }
         i++;
     }
-    this -> ALL_NODES = last_nodes;
+    // this -> ALL_NODES = last_nodes;
 }
 
-void SkipList::build_skip_list_deterministic(vector<int> list){
+void SkipList::build_skip_list_deterministic(std::vector<int>& list){
     sort(list.begin(), list.end());
     int i = 0;
     int max_level = std::log2(list.size());
     this -> MAX_LVL = max_level;
     this -> ELEMENT_COUNT = list.size();
-    vector<int> levels;
+    std::vector<int> levels;
 
-    // for example for max level 2 it will create vector of 
+    // for example for max level 2 it will create std::vector of 
     // {4, 2} which will later be used for build up
     // {2, 1} which will be later used for determining how  
     // high we should go
@@ -174,7 +170,7 @@ void SkipList::build_skip_list_deterministic(vector<int> list){
     // Start building the linked list
     SkipList::Node* p;
     SkipList::Node* p_prev = nullptr;
-    vector<vector<SkipList::Node*>> last_nodes;
+    std::vector<std::vector<SkipList::Node*>> last_nodes;
 
     while (i < list.size()){
         p = new SkipList::Node;
@@ -217,7 +213,7 @@ void SkipList::build_skip_list_deterministic(vector<int> list){
         }
         i++;
     }
-    this -> ALL_NODES = last_nodes; // Save it for later use in inserting
+    // this -> ALL_NODES = last_nodes; // Save it for later use in inserting
 };
 
 SkipList::Node* SkipList::find_element_rec(int value, SkipList::Node* head_copy){
@@ -235,7 +231,7 @@ SkipList::Node* SkipList::find_element_rec(int value, SkipList::Node* head_copy)
     return des_node;
 }
 
-vector<SkipList::Node*> SkipList::find_closest_element_rec(int value, SkipList::Node* head_copy){
+std::vector<SkipList::Node*> SkipList::find_closest_element_rec(int value, SkipList::Node* head_copy){
     while (head_copy -> next != NULL && head_copy -> next -> val <= value){
         head_copy = head_copy -> next;
         if (head_copy -> val == value){
@@ -246,7 +242,7 @@ vector<SkipList::Node*> SkipList::find_closest_element_rec(int value, SkipList::
     if (head_copy -> down == NULL){
         return {head_copy, head_copy -> next};
     }
-    vector<SkipList::Node*> closest_elements  = find_closest_element_rec(value, head_copy -> down);
+    std::vector<SkipList::Node*> closest_elements  = find_closest_element_rec(value, head_copy -> down);
     return closest_elements;
 }
 
@@ -292,7 +288,7 @@ SkipList::Node* SkipList::find_element(int value){
     }
 }
 
-vector<SkipList::Node*> SkipList::find_closest_elements(int value){
+std::vector<SkipList::Node*> SkipList::find_closest_elements(int value){
     /* 
     Returns a node in the skip list 
     containing the desired value
@@ -308,8 +304,8 @@ vector<SkipList::Node*> SkipList::find_closest_elements(int value){
     while (head_copy -> up != NULL){
         head_copy = head_copy -> up;
     }
-    vector<SkipList::Node*> nodes = SkipList::find_closest_element_rec(value, head_copy);
-
+    std::vector<SkipList::Node*> nodes = SkipList::find_closest_element_rec(value, head_copy);
+    
     if (nodes.size() == 1){
         nodes[0] = get_bottom_node(nodes[0]);
         SkipList::Node* left_node = nullptr;
@@ -452,8 +448,13 @@ void SkipList::insert_element_max(int value, SkipList::Node* node, int max_lvl_n
     start -> height = height; // assign height to the bottom most node
     if (max_lvl_new > this -> MAX_LVL){
         SkipList::Node* head_end = go_up_till_end(this -> head);
-        insert_node_up -> next = head_end;
-        head_end -> prev = insert_node_up;
+        SkipList::Node* head_end_up = new SkipList::Node;
+        head_end_up -> val = head_end -> val;
+        head_end_up -> down = head_end;
+        head_end -> up = head_end_up;
+
+        insert_node_up -> prev = head_end_up;
+        head_end_up -> next = insert_node_up;
     }
     this -> MAX_LVL = max_lvl_new;
 }
@@ -614,10 +615,19 @@ void SkipList::insert_element(int value){
     if (find_element(value) != NULL){
         throw std::runtime_error("Element with this value is already in the skip list!");
     }
-    this -> ELEMENT_COUNT++; // increment the amount of elements
-    int MAX_LVL_NEW = std::log2(this -> ELEMENT_COUNT); // calculate MAX_LVL_NEW
+    int MAX_LVL_NEW = std::log2(this -> ELEMENT_COUNT + 1); // calculate MAX_LVL_NEW
 
-    vector<SkipList::Node*> nodes = find_closest_elements(value);
+    if (this -> ELEMENT_COUNT == 1){
+        if (this -> head -> val > value){
+            insert_element_min(value, this -> head, MAX_LVL_NEW); // TODO do we really need to pass this->head here? just use it inside the function
+        } else {
+            insert_element_max(value, this -> tail, MAX_LVL_NEW);
+        }
+        this -> ELEMENT_COUNT++; // increment the amount of elements
+        return;
+    }
+    this -> ELEMENT_COUNT++; // increment the amount of elements
+    std::vector<SkipList::Node*> nodes = find_closest_elements(value);
     
     if (nodes[1] == NULL){ // if we have inserted the minimum
         insert_element_min(value, this-> head, MAX_LVL_NEW);
@@ -641,7 +651,7 @@ void SkipList::insert_element(int value){
 
     // Now we grow it till we randomly reach the end while also connecting the nodes to the closest
     // ones on the same level
-    while (SkipList::next() && insert_height <= this -> MAX_LVL){
+    while (SkipList::next() && insert_height < MAX_LVL_NEW){
         insert_height++; // height variable indicates on which height we currently are
         SkipList::Node* start_copy_left = start;
         SkipList::Node* start_copy_right = start;
@@ -710,7 +720,7 @@ void SkipList::insert_element(int value){
                 start_copy_right -> prev = insert_node_up;
                 insert_node_up -> next = start_copy_right;
             }
-        }        
+        }
     }
     start -> height = insert_height;
 }
