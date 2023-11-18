@@ -20,7 +20,7 @@ public:
     Node* head; // head pointer of the linked list
     Node* last; // last node of the linked list
     
-    void build_ll(vector<int> list);
+    void build_ll(vector<int>& list);
     void print_ll();
     void push_back(int val);
     void push_front(int val);

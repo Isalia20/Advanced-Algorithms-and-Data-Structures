@@ -15,7 +15,7 @@ LinkedList::~LinkedList() { // destructor
     head = NULL;
 }
 
-void LinkedList::build_ll(vector<int> list){
+void LinkedList::build_ll(vector<int>& list){
         int i = list.size() - 1;
         LinkedList::Node* p_next = nullptr;
         LinkedList::Node* p;

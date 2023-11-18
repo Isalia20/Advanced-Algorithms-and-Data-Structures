@@ -4,6 +4,8 @@
 #include <cassert>
 
 
+using namespace std;
+
 void check_build_func_large(){
     // Create a vector with numbers from 1 to 1,000,000
     std::vector<int> numbers;

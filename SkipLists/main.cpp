@@ -1,3 +1,4 @@
+#include <fstream>  // For file I/O
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -5,51 +6,61 @@
 #include <limits>
 #include "SkipList.h"
 #include "LinkedList.h"
+#include "BST.h"
+#include <string>
 
-using namespace std;
+void measure_and_log(std::function<void()> function, const std::string& name, std::ofstream& myfile) {
+    auto start = std::chrono::high_resolution_clock::now();
+    function();
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+    myfile << name << " - " << duration << std::endl;
+}
 
-int main(){
-    SkipList sl;
-    LinkedList ll;
-    vector<int> list = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
+int main(int argc, char* argv[]){
+    SkipList* sl = new SkipList;
+    LinkedList* ll = new LinkedList;
+    BST* bst = new BST;
+    vector<int> list;
 
-    // for (int i = 0; i < 15; i++){
-    //     list.push_back(i);
-    // }
+    int list_size = std::stoi(argv[1]);
+    std::string str_list_size = std::to_string(list_size);
 
-    sl.build_skip_list_deterministic(list);
-    cout << "DONE BUILDING SKIP LIST" << endl;
-    cout << "---------------------------------------------------------------------------------------------------------" << endl;
-    ll.build_ll(list);
-    cout << "DONE BUILDING LINKED LIST" << endl;
-    cout << "---------------------------------------------------------------------------------------------------------" << endl;
-    sl.print();
-    // cout << sl.go_up_till_end(sl.tail) -> up -> val << endl;
-    cout << "------------------------------------------------------------------------------------------------------------------------------" << endl;
-    sl.insert_element(-1);
-    sl.print();
+    for (int i = 0; i <= list_size; i++){
+        list.push_back(i);
+    }
+    sl -> build_skip_list_deterministic(list);
+    ll -> build_ll(list);
+    bst -> build_bst(list);
 
-    // sl.insert_element();
-    // ll.print_ll();
+    // Open files to write results
+    std::ofstream myfile1("time_results_serch_last_deterministic_" + str_list_size + ".txt");
+    std::ofstream myfile2("time_results_serch_mid_deterministic_" + str_list_size + ".txt");
+    std::ofstream myfile3("time_results_serch_quarter_deterministic_" + str_list_size + ".txt");
+    std::ofstream myfile4("time_results_serch_third_quarter_deterministic_" + str_list_size + ".txt");
 
-    // Start timing here
-    // auto start = std::chrono::high_resolution_clock::now();
-    // ll.find_element(10 - 1);
-    // // Stop timing here
-    // auto end = std::chrono::high_resolution_clock::now();
-    // // Compute the difference between the two times in milliseconds
-    // auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-    // cout << "LinkedList find_element took " << duration << " nanoseconds" << endl;
-    // cout << "------------------------------------------------------------" << endl;
-    
-    // // Start timing here
-    // start = std::chrono::high_resolution_clock::now();
-    // sl.find_element(10 - 1);
-    // // Stop timing here
-    // end = std::chrono::high_resolution_clock::now();
+    for(int i = 0; i < 200; ++i) {
+        measure_and_log([&](){ ll->find_element(list_size); }, "LinkedList", myfile1); // End of the list
+        measure_and_log([&](){ sl->find_element(list_size); }, "SkipList", myfile1);
+        measure_and_log([&](){ bst->find_element(bst -> root, list_size); }, "BST", myfile1);
+        measure_and_log([&](){ ll->find_element(list_size/2); }, "LinkedList", myfile2); // Middle of the list 
+        measure_and_log([&](){ sl->find_element(list_size/2); }, "SkipList", myfile2);
+        measure_and_log([&](){ bst->find_element(bst -> root, list_size/2); }, "BST", myfile2);
+        measure_and_log([&](){ ll->find_element(list_size/4); }, "LinkedList", myfile3); // Quarter of the list
+        measure_and_log([&](){ sl->find_element(list_size/4); }, "SkipList", myfile3);
+        measure_and_log([&](){ bst->find_element(bst -> root, list_size/4); }, "BST", myfile3);
+        measure_and_log([&](){ ll->find_element(list_size * 3/4); }, "LinkedList", myfile4); // 3/4th of the list
+        measure_and_log([&](){ sl->find_element(list_size * 3/4); }, "SkipList", myfile4);
+        measure_and_log([&](){ bst->find_element(bst -> root, list_size * 3/4); }, "BST", myfile4);
+    }
 
-    // // Compute the difference between the two times in milliseconds
-    // duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-    // cout << "SkipList find_element took " << duration << " nanoseconds" << endl;
+    delete(sl);
+    delete(ll);
+    delete(bst);
+
+    // Close the files
+    myfile1.close(); 
+    myfile2.close();
+    myfile3.close();
     return 0;
 }
