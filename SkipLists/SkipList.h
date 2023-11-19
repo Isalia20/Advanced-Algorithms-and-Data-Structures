@@ -42,17 +42,17 @@ public:
     std::vector<Node*> find_closest_element_rec(int searchValue, Node* traversalNode); // Function for finding closest elements recursively(left and right)
     std::vector<Node*> find_closest_elements(int searchValue); // Function for finding the closest elements(left and right)
     Node* get_bottom_node(Node* node); // Function for getting the bottom most node from any node(go down till the end is reached)
-    Node* go_up_n_times(Node* traversalNode, int steps);
-    void insert_element_max(int value, Node* node, int maxLevelNew);
-    void insert_element_min(int value, Node* node, int maxLevelNew);
-    Node* create_node_up_if_not_exist(Node* node);
-    void remove_nodes_without_applying_connections(Node* node);
-    void remove_element_min_max(Node* node_to_remove, bool is_max);
-    void remove_element(int value);
-    void insert_element(int value);
-    Node* go_up_till_end(Node* traversalNode);
-    std::vector<int> get_level_node_count();
-    void print();
+    Node* go_up_n_times(Node* traversalNode, int steps); // Function for going up the node n times
+    void insert_element_max(int value, Node* node, int maxLevelNew); // Function for inserting max element
+    void insert_element_min(int value, Node* node, int maxLevelNew); // Function for inserting min element
+    Node* create_node_up_if_not_exist(Node* node); // Function for creating node and connecting to the current node if it doesnt exist
+    void remove_nodes_without_applying_connections(Node* node); // Remove node(and upper nodes) without applying connecting other nodes
+    void remove_element_min_max(Node* node_to_remove, bool is_max); // Remove min/max element
+    void remove_element(int value); // Remove element general
+    void insert_element(int value); // Insert element general
+    Node* go_up_till_end(Node* traversalNode); // Go up the node till the end
+    std::vector<int> get_level_node_count(); // Get node count at each level
+    void print(); // Print Skip List
 };
 
 #endif
