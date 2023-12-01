@@ -10,7 +10,7 @@ Implementation of a famous data structure skip lists from scratch in C++. Reposi
 
 ### BST vs SkipList (Searching Middle Element)
 
-![Searching Middle Element](comparison_pictures/BST_SkipList_comparison_mid_element.png)
+![Searching Middle Element](comparison_pictures/BST_SkipList_comparison_mid.png)
 
 ### BST vs SkipList (Searching Quarter Element)
 
@@ -18,7 +18,7 @@ Implementation of a famous data structure skip lists from scratch in C++. Reposi
 
 ### BST vs SkipList (Searching Third Quarter Element)
 
-![Searching Third Quarter Element](comparison_pictures/BST_SkipList_comparison_third_quarter_element.png)
+![Searching Third Quarter Element](comparison_pictures/BST_SkipList_comparison_third_quarter.png)
 
 ### BST
 
