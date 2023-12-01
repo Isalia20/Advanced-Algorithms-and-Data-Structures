@@ -6,20 +6,30 @@ Implementation of a famous data structure skip lists from scratch in C++. Reposi
 
 ### BST vs SkipList (Searching Last Element)
 
+This chart shows distribution of searching for the last element(e.g in 100 million array, the number we will be searching is 100 million)
+
 ![Searching Last Element](comparison_pictures/BST_SkipList_comparison_last_element.png)
 
 ### BST vs SkipList (Searching Middle Element)
+
+This chart shows distribution of searching for the middle element(e.g in 100 million array 1/2 the number we will be searching is 50000000)
 
 ![Searching Middle Element](comparison_pictures/BST_SkipList_comparison_mid.png)
 
 ### BST vs SkipList (Searching Quarter Element)
 
+This chart shows distribution of searching for the quarter element(e.g in 100 million array 1/4 the number we will be searching is 25000000)
+
 ![Searching Quarter Element](comparison_pictures/BST_SkipList_comparison_quarter_element.png)
 
 ### BST vs SkipList (Searching Third Quarter Element)
 
+This chart shows distribution of searching for the third quarter element(e.g in 100 million array 3/4 the number we will be searching is 75000000)
+
 ![Searching Third Quarter Element](comparison_pictures/BST_SkipList_comparison_third_quarter.png)
 
-### BST
+### SkipList(Random) Level mean and standard deviation
+
+This chart shows mean and standard deviation of the Skiplist data structure if we are building it randomly(i.e. on each element while building we flip a coin and grow one element up if it's 1 and continue onto the next element if it's 0)
 
 ![Level Node Count per Level 10k Elements](comparison_pictures/RandomSkipListLevelNodeCount.png)
