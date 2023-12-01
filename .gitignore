@@ -1,10 +1,7 @@
-skip_list
-skip_list_tests
-node_count
 .DS_Store
 *.yml
 *.plist
 *.json
-main
+SkipLists/bin/*
 SkipLists/.ipynb_checkpoints/*
 SkipLists/__pycache__/visualization_parameters.cpython-310.pyc

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import seaborn as sns
 from typing import List, Dict
-from visualization_parameters import VISUALIZATION_PARAMETERS
+from statistical_analysis.visualization_parameters import VISUALIZATION_PARAMETERS
 
 
 def initialize_dict_from_txt(file_txt: str):

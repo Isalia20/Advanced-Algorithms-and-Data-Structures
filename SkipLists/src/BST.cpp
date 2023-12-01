@@ -107,14 +107,3 @@ BST::Node* BST::find_element(BST::Node* root, int val){
         return find_element(root -> left, val);
     }
 }
-// int main(){
-//     BST tree;
-//     vector<int> list;
-//     for (int i = 0; i < 100000000; i++){
-//         list.push_back(i);
-//     }
-//     tree.build_bst(list);
-//     cout << "BUILT BST" << endl;
-//     cout << tree.search_element(tree.root, 50000000) -> val << endl;
-//     cout << "found element" << endl;
-// }
