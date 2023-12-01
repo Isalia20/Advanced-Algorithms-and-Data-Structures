@@ -4,6 +4,10 @@
 
 
 int main(){
+    std::random_device rd;
+    std::mt19937 gen;
+    std::uniform_int_distribution<int> distrib;
+
     SkipList* sl = new SkipList;
     std::vector<int> result;
 
@@ -12,10 +16,10 @@ int main(){
         list.push_back(i);
     }
 
-    sl -> build_skip_list_random(list);
-    result = sl -> get_level_node_count();
-    std::ofstream myfile("height results.txt");
+    std::ofstream myfile("height_results_random.txt");
     for (int i = 0; i < 1000; i++){
+        sl -> build_skip_list_random(list);
+        result = sl -> get_level_node_count();
         for (int j = 0; j < result.size(); j++){
             myfile << result[j] << std::endl;
         }
