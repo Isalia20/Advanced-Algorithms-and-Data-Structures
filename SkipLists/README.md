@@ -2,6 +2,20 @@
 
 Implementation of a famous data structure skip lists from scratch in C++. Reposistory also includes minimal implementation of BST(Binary search tree) and minimal implementation of Linked List data structures for comparison.
 
+## Running code
+
+If you want to run the code on MacOS or Linux, follow the instructions below:
+
+1. Clone the repo `git clone https://github.com/Isalia20/Advanced-Algorithms-and-Data-Structures.git`
+
+2. Go into the directory `cd SkipLists`
+
+3. Choose whatever function you want to use in main.cpp
+
+4. Make the main.cpp file with `make main`
+
+5. Run the file `./main`
+
 ## Statistical comparison of BST and SkipList
 
 ### BST vs SkipList (Searching Last Element)
