@@ -6,3 +6,5 @@ node_count
 *.plist
 *.json
 main
+SkipLists/.ipynb_checkpoints/*
+SkipLists/__pycache__/visualization_parameters.cpython-310.pyc
