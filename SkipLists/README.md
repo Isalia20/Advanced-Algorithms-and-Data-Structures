@@ -10,7 +10,7 @@ If you want to run the code on MacOS or Linux, follow the instructions below:
 
 2. Go into the directory `cd SkipLists`
 
-3. Choose whatever function you want to use in main.cpp
+3. Choose whatever function you want to use in main.cpp by using any of the functions used in **SkipLists.h** file
 
 4. Make the main.cpp file with `make main`
 
