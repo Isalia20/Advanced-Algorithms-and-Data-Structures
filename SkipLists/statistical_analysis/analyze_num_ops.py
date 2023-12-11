@@ -38,9 +38,9 @@ def plot_bst_skiplist(bin_centers, bst_binned, skiplist_binned):
     plt.plot(bin_centers, skiplist_binned, label='SkipList Operation Count', color='red')
 
     # Labeling the plot
-    plt.title('Binned Operation Count Comparison between BST and SkipList')
+    plt.title('Binned Operation Count Comparison between BST and SkipList(Bins of 20)')
     plt.xlabel('Number to search')
-    plt.ylabel('Operation Count')
+    plt.ylabel('Binned Operation Count')
     plt.legend()
     plt.show()
     return
