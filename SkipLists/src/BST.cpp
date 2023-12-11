@@ -4,11 +4,13 @@
 #include <random>
 #include <algorithm>
 #include <queue>
+#include <iostream>
+#include <fstream> // For file I/O
 
 using namespace std;
 
 // for random int generation between 0 and 1
-BST::BST() : gen(rd()), distrib(0, 1) {}; // constructor including random number generator
+BST::BST() : root(nullptr), gen(rd()), distrib(0, 1) {}; // constructor including random number generator
 BST::~BST() {
     // call a function to delete all nodes in the tree
     BST::deleteTree(root);
@@ -105,5 +107,38 @@ BST::Node* BST::find_element(BST::Node* root, int val){
         return find_element(root -> right, val);
     } else {
         return find_element(root -> left, val);
+    }
+}
+
+BST::Node* BST::find_element_ops(BST::Node* root, int val, std::ofstream& file){
+    file << "1" << std::endl;
+    if(root == nullptr) {
+        // Element is not found in the tree
+        return nullptr;
+    } else if(root -> val == val) {
+        // We have found the element
+        return root;
+    } else if(root -> val < val) {
+        return find_element_ops(root -> right, val, file);
+    } else {
+        return find_element_ops(root -> left, val, file);
+    }
+}
+
+void BST::printRange(BST::Node* root, int X, int Y) {
+    if (root == nullptr) return;
+
+    if (root -> val < X){
+        printRange(root -> right, X, Y);
+    }
+
+    if (root -> val >= X && root -> val <= Y){
+        printRange(root -> left, X, Y);
+        std::cout << root -> val << std::endl;
+        printRange(root -> right, X, Y);
+    }
+
+    if (root -> val > Y){
+        printRange(root -> left, X, Y);
     }
 }

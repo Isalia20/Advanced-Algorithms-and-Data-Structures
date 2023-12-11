@@ -39,6 +39,8 @@ public:
     void build_skip_list_deterministic(std::vector<int>& list); // Function for building skip list from a vector deterministically(meaning each node height is determined by its index)
     Node* find_element_rec(int searchValue, Node* traversalNode); // Function for finding element recursively
     Node* find_element(int searchValue); // Function for finding the element in skip list(returns the bottom most node of that element)
+    Node* find_element_ops(int searchValue, std::ofstream& file); // Function for finding element and counting number of ops taken
+    Node* find_element_rec_ops(int searchValue, Node* traversalNode, std::ofstream& myfile); // Function for finding element recursively and counting ops(for statistics)
     std::vector<Node*> find_closest_element_rec(int searchValue, Node* traversalNode); // Function for finding closest elements recursively(left and right)
     std::vector<Node*> find_closest_elements(int searchValue); // Function for finding the closest elements(left and right)
     Node* get_bottom_node(Node* node); // Function for getting the bottom most node from any node(go down till the end is reached)
@@ -53,6 +55,7 @@ public:
     Node* go_up_till_end(Node* traversalNode); // Go up the node till the end
     std::vector<int> get_level_node_count(); // Get node count at each level
     void print(); // Print Skip List
+    void print_range(int X, int Y);
 };
 
 #endif

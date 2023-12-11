@@ -12,9 +12,9 @@ If you want to run the code on MacOS or Linux, follow the instructions below:
 
 3. Choose whatever function you want to use in main.cpp by using any of the functions used in **SkipLists.h** file
 
-4. Make the main.cpp file with `make main`
+4. Make the try_skip_list.cpp file with `make try_skiplist` (You can edit the file to try some other functions, now it only has build and print)
 
-5. Run the file `./main`
+5. Run the file `./bin/skiplist`
 
 ## Statistical comparison of BST and SkipList
 

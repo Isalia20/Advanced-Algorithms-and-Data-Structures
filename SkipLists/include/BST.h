@@ -33,8 +33,10 @@ public:
     BST::Node* sortedArrayToBST(vector<int>& arr, int start, int end);
     BST::Node* newNode(int value);
     BST::Node* find_element(BST::Node* root, int val);
+    BST::Node* find_element_ops(BST::Node* root, int val, std::ofstream& file);
     void deleteTree(BST::Node* node);
     void print_bst();
+    void printRange(BST::Node* root, int X, int Y);
 };
 
 #endif

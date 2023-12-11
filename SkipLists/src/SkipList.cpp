@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include <iostream>
+#include <fstream> // For file I/O
 
 using namespace std;
 
@@ -280,7 +282,6 @@ SkipList::Node* SkipList::find_element(int searchValue){
     Returns a node in the skip list 
     containing the desired value
     */
-    
     Node* traversalNode = this -> head;
     // If the head of the list is already the value we are searching for
     if (traversalNode -> val == searchValue){
@@ -294,6 +295,7 @@ SkipList::Node* SkipList::find_element(int searchValue){
     
     // Call the recursive find_element_rec function
     Node* foundNode = find_element_rec(searchValue, traversalNode);
+
     if (foundNode == NULL){
         return foundNode;
     } else {
@@ -301,6 +303,59 @@ SkipList::Node* SkipList::find_element(int searchValue){
         return get_bottom_node(foundNode);
     }
 }
+
+SkipList::Node* SkipList::find_element_ops(int searchValue, std::ofstream& file){
+    /* 
+    Returns a node in the skip list 
+    containing the desired value
+    */
+    file << "ELEMENT - " << searchValue << std::endl;
+    Node* traversalNode = this -> head;
+    // If the head of the list is already the value we are searching for
+    if (traversalNode -> val == searchValue){
+        file << "1" << std::endl;
+        file << "------------------------------------" << std::endl;
+        return traversalNode;
+    }
+
+    // Go to the top of the skip list(upper left corner)
+    while (traversalNode -> up != NULL){
+        traversalNode = traversalNode -> up;
+    }
+    
+    // Call the recursive find_element_rec function
+    Node* foundNode = find_element_rec_ops(searchValue, traversalNode, file);
+
+    file << "------------------------------------" << std::endl;
+
+    if (foundNode == NULL){
+        return foundNode;
+    } else {
+        // Return the bottom node of the found node
+        return get_bottom_node(foundNode);
+    }
+}
+
+SkipList::Node* SkipList::find_element_rec_ops(int searchValue, Node* traversalNode, std::ofstream& file){
+    // Traverse through the list until we find a value greater than searchValue
+    while (traversalNode->next != NULL && traversalNode->next->val <= searchValue){
+        file << "1" << std::endl;
+        traversalNode = traversalNode->next;
+        // If we find the searchValue, return the node
+        if (traversalNode->val == searchValue){
+            return traversalNode;
+        }
+    }
+    file << "1" << std::endl;
+    // If we have traversed to the end of the list and didn't find the element
+    if (traversalNode->down == NULL){
+        return nullptr;
+    }
+    // Recursively call the function on the lower level of the skip list
+    Node* desiredNode = find_element_rec_ops(searchValue, traversalNode->down, file);
+    return desiredNode;
+}
+
 
 vector<SkipList::Node*> SkipList::find_closest_elements(int searchValue){
     /* 
@@ -803,5 +858,38 @@ void SkipList::print(){
         cout << "\n";
         // Move to the next level down
         top_left = top_left->down;
+    }
+}
+
+void SkipList::print_range(int X, int Y){
+    /* 
+    NOTE:
+    This function is just a very basic implementation
+    and lacks considering many edge cases and might give 
+    you errors. USE WITH CAUTION!!!
+    */
+    Node* head = this -> head;
+    if (X > Y){ // If the given range is invalid, X should be left and Y should be right.
+        throw std::runtime_error("Invalid range!");
+    }
+
+    if (this -> head -> val > Y || this -> tail -> val < X){ // If range is invalid for the elements we have
+        std::cout << "NO ELEMENTS IN THIS RANGE" << std::endl;
+    }
+    
+    std::vector<SkipList::Node*> closest_elements = find_closest_elements(X); // find closest left and right nodes to element X
+    Node* start;
+
+    if (closest_elements[0] -> next -> val == X){ // if equal then get the vaue itself, look at how find_closest_elements work if value exists
+        start = closest_elements[0] -> next;
+    } else { // if not equal then we should start with the value greater than the min of X
+        start = closest_elements[1];
+    }
+
+    Node* start_traverse = start;
+
+    while (start_traverse && start_traverse -> val <= Y){
+        std::cout << start_traverse -> val << std::endl;
+        start_traverse = start_traverse -> next;
     }
 }
