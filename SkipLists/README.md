@@ -47,3 +47,17 @@ This chart shows distribution of searching for the third quarter element(e.g in 
 This chart shows mean and standard deviation of the Skiplist data structure if we are building it randomly(i.e. on each element while building we flip a coin and grow one element up if it's 1 and continue onto the next element if it's 0)
 
 ![Level Node Count per Level 10k Elements](comparison_pictures/RandomSkipListLevelNodeCount.png)
+
+### SkipList vs BST operation count
+
+This chart shows operation count(if statement aggregates) for searching each element in a 100,000 element Skip List and BST. Numbers on the X axis are grouped into groups of 20(i.e. 0-20 operation count mean, 21-40 operation count mean etc.)
+As we can observe on the chart, SkipList on average needs more operations to find the element. Some of the "falls" we observe on the SkipList line show
+times when there is a skip connection from one node to another which reduces the operation count and overall mean for that group.
+
+![SkipList vs BST Operation Count 100k Elements](comparison_pictures/BST_SkipList_op_count.png)
+
+### SkipList vs BST Range Query Performance
+
+This chart shows the performance difference between SkipList and BST for range query(for example print all numbers from X to Y which exist in SkipList/BST)
+
+![SkipList vs BST Range Query Performance](comparison_pictures/BST_SkipList_Range_Query.png)
