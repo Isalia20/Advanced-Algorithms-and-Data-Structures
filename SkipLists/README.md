@@ -58,6 +58,7 @@ times when there is a skip connection from one node to another which reduces the
 
 ### SkipList vs BST Range Query Performance
 
-This chart shows the performance difference between SkipList and BST for range query(for example print all numbers from X to Y which exist in SkipList/BST)
+This chart shows the performance difference between SkipList and BST for range query(for example print all numbers from X to Y which exist in SkipList/BST).
+We can see that performance for both data structures are almost(if not totally) identical.
 
 ![SkipList vs BST Range Query Performance](comparison_pictures/BST_SkipList_Range_Query.png)
