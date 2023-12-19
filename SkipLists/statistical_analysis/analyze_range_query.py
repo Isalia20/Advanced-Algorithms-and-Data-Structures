@@ -27,8 +27,8 @@ def get_times(range_query_bst_path: str, range_query_sl_path: str):
     sl_left, sl_right = sl_mean - sl_std * 3, sl_mean + sl_std * 3
 
     # Filter out the values
-    bst_times = [i / 1e8 for i in bst_times if i > bst_left and i < bst_right]
-    sl_times = [i / 1e8 for i in sl_times if i > sl_left and i < sl_right]
+    bst_times = [i / 1e9 for i in bst_times if i > bst_left and i < bst_right]
+    sl_times = [i / 1e9 for i in sl_times if i > sl_left and i < sl_right]
     return bst_times, sl_times
 
 def plot_times(bst_times, sl_times):
