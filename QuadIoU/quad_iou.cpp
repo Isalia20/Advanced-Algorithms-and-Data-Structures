@@ -1,3 +1,6 @@
+#ifndef QUAD_IOU
+#define QUAD_IOU
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -274,3 +277,5 @@ double unionArea(Quadrilateral quad0, Quadrilateral quad1, double intersect_area
 double calculateIoU(double intersect_area, double union_area){
     return intersect_area / union_area;
 }
+
+#endif
