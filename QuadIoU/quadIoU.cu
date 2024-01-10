@@ -16,10 +16,66 @@ struct Quadrilateral {
     Point corners[4];
 };
 
-__device__ int findMaxQuadCoordinate(Quadrilateral& box, char x_or_y){
+const Point quadData[][2][4] = {
+    {{{0, 0}, {300, 0}, {300, 300}, {0, 300}}, {{0, 0}, {150, 0}, {150, 150}, {0, 150}}},
+    {{{0, 0}, {300, 0}, {300, 300}, {0, 300}}, {{500, 500}, {600, 600}, {700, 750}, {600, 750}}},
+    {{{200, 200}, {500, 200}, {500, 500}, {200, 500}}, {{300, 300}, {500, 200}, {500, 500}, {200, 500}}},
+    {{ {0, 0}, {300, 0}, {300, 300}, {0, 300} }, { {10, 10}, {20, 10}, {20, 20}, {10, 20} }},
+    {{ {0, 0}, {300, 0}, {300, 300}, {0, 300} }, { {10, 10}, {20, 10}, {20, 20}, {10, 20} }},
+    {{ {0, 0}, {350, 0}, {350, 350}, {0, 350} }, { {15, 15}, {25, 15}, {25, 25}, {15, 25} }},
+    {{ {0, 0}, {400, 0}, {400, 400}, {0, 400} }, { {30, 30}, {60, 30}, {60, 60}, {30, 60} }},
+    {{ {0, 0}, {450, 0}, {450, 450}, {0, 450} }, { {40, 40}, {80, 40}, {80, 80}, {40, 80} }},
+    {{ {0, 0}, {500, 0}, {500, 500}, {0, 500} }, { {50, 50}, {100, 50}, {100, 100}, {50, 100} }},
+    {{ {0, 0}, {550, 0}, {550, 550}, {0, 550} }, { {5, 5}, {15, 5}, {15, 15}, {5, 15} }},
+    {{ {0, 0}, {600, 0}, {600, 600}, {0, 600} }, { {20, 20}, {40, 20}, {40, 40}, {20, 40} }},
+    {{ {0, 0}, {650, 0}, {650, 650}, {0, 650} }, { {25, 25}, {50, 25}, {50, 50}, {25, 50} }},
+    {{ {0, 0}, {700, 0}, {700, 700}, {0, 700} }, { {10, 10}, {30, 10}, {30, 30}, {10, 30} }},
+    {{ {0, 0}, {750, 0}, {750, 750}, {0, 750} }, { {35, 35}, {70, 35}, {70, 70}, {35, 70} }},
+    {{ {0, 0}, {800, 0}, {800, 800}, {0, 800} }, { {45, 45}, {90, 45}, {90, 90}, {45, 90} }},
+    {{ {0, 0}, {850, 0}, {850, 850}, {0, 850} }, { {55, 55}, {110, 55}, {110, 110}, {55, 110} }},
+    {{ {0, 0}, {900, 0}, {900, 900}, {0, 900} }, { {60, 60}, {120, 60}, {120, 120}, {60, 120} }},
+    {{ {0, 0}, {950, 0}, {950, 950}, {0, 950} }, { {65, 65}, {130, 65}, {130, 130}, {65, 130} }},
+    {{ {0, 0}, {1000, 0}, {1000, 1000}, {0, 1000} }, { {70, 70}, {140, 70}, {140, 140}, {70, 140} }},
+    {{ {0, 0}, {1050, 0}, {1050, 1050}, {0, 1050} }, { {75, 75}, {150, 75}, {150, 150}, {75, 150} }},
+    {{ {0, 0}, {1100, 0}, {1100, 1100}, {0, 1100} }, { {80, 80}, {160, 80}, {160, 160}, {80, 160} }},
+    {{ {0, 0}, {1150, 0}, {1150, 1150}, {0, 1150} }, { {85, 85}, {170, 85}, {170, 170}, {85, 170} }},
+    {{ {0, 0}, {350, 0}, {350, 350}, {0, 350} }, { {15, 15}, {25, 15}, {25, 25}, {15, 25} }},
+    {{ {0, 0}, {400, 0}, {400, 400}, {0, 400} }, { {30, 30}, {60, 30}, {60, 60}, {30, 60} }},
+    {{ {0, 0}, {450, 0}, {450, 450}, {0, 450} }, { {40, 40}, {80, 40}, {80, 80}, {40, 80} }},
+    {{ {0, 0}, {500, 0}, {500, 500}, {0, 500} }, { {50, 50}, {100, 50}, {100, 100}, {50, 100} }},
+    {{ {0, 0}, {550, 0}, {550, 550}, {0, 550} }, { {5, 5}, {15, 5}, {15, 15}, {5, 15} }},
+    {{ {0, 0}, {600, 0}, {600, 600}, {0, 600} }, { {20, 20}, {40, 20}, {40, 40}, {20, 40} }},
+    {{ {0, 0}, {650, 0}, {650, 650}, {0, 650} }, { {25, 25}, {50, 25}, {50, 50}, {25, 50} }},
+    {{ {0, 0}, {700, 0}, {700, 700}, {0, 700} }, { {10, 10}, {30, 10}, {30, 30}, {10, 30} }},
+    {{ {0, 0}, {750, 0}, {750, 750}, {0, 750} }, { {35, 35}, {70, 35}, {70, 70}, {35, 70} }},
+    {{ {0, 0}, {800, 0}, {800, 800}, {0, 800} }, { {45, 45}, {90, 45}, {90, 90}, {45, 90} }},
+    {{ {0, 0}, {850, 0}, {850, 850}, {0, 850} }, { {55, 55}, {110, 55}, {110, 110}, {55, 110} }},
+    {{ {0, 0}, {900, 0}, {900, 900}, {0, 900} }, { {60, 60}, {120, 60}, {120, 120}, {60, 120} }},
+    {{ {0, 0}, {950, 0}, {950, 950}, {0, 950} }, { {65, 65}, {130, 65}, {130, 130}, {65, 130} }},
+    {{ {0, 0}, {1000, 0}, {1000, 1000}, {0, 1000} }, { {70, 70}, {140, 70}, {140, 140}, {70, 140} }},
+    {{ {0, 0}, {1050, 0}, {1050, 1050}, {0, 1050} }, { {75, 75}, {150, 75}, {150, 150}, {75, 150} }},
+    {{ {0, 0}, {1100, 0}, {1100, 1100}, {0, 1100} }, { {80, 80}, {160, 80}, {160, 160}, {80, 160} }},
+    {{ {240, 130}, {20, 200}, {200, 20}, {150, 400} }, { {130, 40}, {220, 300}, {220, 375}, {130, 215}}},
+    {{ {240, 130}, {20, 200}, {200, 20}, {150, 400} }, { {130, 40}, {220, 300}, {220, 375}, {130, 215}}},
+    {{ {200, 20}, {20, 200}, {150, 400}, {240, 130} }, { {130, 40}, {220, 300}, {220, 375}, {130, 215}}}
+};
+
+const int NUM_QUADS = sizeof(quadData) / sizeof(quadData[0]);
+const int NUM_QUAD0 = NUM_QUADS;
+const int NUM_QUAD1 = NUM_QUADS;
+
+void initializeQuads(Quadrilateral* quads, const Point data[][2][4], int numQuads, int quadIndex) {
+    for (int i = 0; i < numQuads; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            quads[i].corners[j] = data[i][quadIndex][j];
+        }
+    }
+}
+
+__device__ double findMaxQuadCoordinate(Quadrilateral& box, char x_or_y){
     // Find the maximum x-coordinate of the quadrilateral
     if (x_or_y == 'x'){
-        int max_x = box.corners[0].x;
+        double max_x = box.corners[0].x; // TODO am here
         for (int i = 1; i < 4; ++i) {
             if (box.corners[i].x > max_x) {
                 max_x = box.corners[i].x;
@@ -27,7 +83,7 @@ __device__ int findMaxQuadCoordinate(Quadrilateral& box, char x_or_y){
         }
         return max_x;
     } else if (x_or_y == 'y'){
-        int max_y = box.corners[0].y;
+        double max_y = box.corners[0].y;
         for (int i = 1; i < 4; ++i) {
             if (box.corners[i].y > max_y) {
                 max_y = box.corners[i].y;
@@ -48,8 +104,8 @@ __device__ int orientation(Point p, Point q, Point r) {
 
 __device__ int isPointInsideQuadrilateral(Point point_to_check, Quadrilateral box) {
     // Find the maximum x-coordinate of the quadrilateral
-    int max_x = findMaxQuadCoordinate(box, 'x');
-    int max_y = findMaxQuadCoordinate(box, 'y');
+    double max_x = findMaxQuadCoordinate(box, 'x');
+    double max_y = findMaxQuadCoordinate(box, 'y');
     // If the point's x-coordinate is greater than the max x-coordinate, it's outside
     if (point_to_check.x > max_x) return -1;
     if (point_to_check.y > max_y) return -1;
@@ -187,7 +243,7 @@ __device__ int findPointInside(Quadrilateral quad_1, Quadrilateral quad_2, Point
 }
 
 __device__ Point findCentroid(const Point* points, int numPoints) {
-    Point centroid = {0, 0};
+    Point centroid = {0.0, 0.0};
     if (numPoints <= 0) {
         return centroid; // Return the origin if there are no points
     }
@@ -196,8 +252,8 @@ __device__ Point findCentroid(const Point* points, int numPoints) {
         centroid.x += points[i].x;
         centroid.y += points[i].y;
     }
-    centroid.x /= numPoints;
-    centroid.y /= numPoints;
+    centroid.x /= (float)numPoints;
+    centroid.y /= (float)numPoints;
     return centroid;
 }
 
@@ -209,8 +265,11 @@ __device__ bool comparePoints(const Point& p1, const Point& p2, const Point& cen
     double angle1 = computeAngle(centroid, p1);
     double angle2 = computeAngle(centroid, p2);
 
-    // If angles are the same, sort based on distance from centroid
-    if (angle1 == angle2) {
+    // Define a small tolerance for angle comparison
+    const double TOLERANCE = 1e-6;
+
+    // Check if angles are within the tolerance
+    if (fabs(angle1 - angle2) < TOLERANCE) {
         double dist1 = (p1.x - centroid.x) * (p1.x - centroid.x) +
                        (p1.y - centroid.y) * (p1.y - centroid.y);
         double dist2 = (p2.x - centroid.x) * (p2.x - centroid.x) +
@@ -261,7 +320,7 @@ __device__ double polygonArea(const Quadrilateral& quad) {
     return polygonArea(quad.corners, 4);
 }
 
-__device__ double intersectionArea(Quadrilateral quad0, Quadrilateral quad1) {
+__device__ double intersectionArea(Quadrilateral& quad0, Quadrilateral& quad1) {
     const int MAX_INTERSECTIONS = 8; // 8 intersections max
     const int MAX_TOTAL_POINTS = MAX_INTERSECTIONS * 2; // Intersection + Inside points
     Point intersectionPoints[MAX_INTERSECTIONS];
@@ -293,12 +352,16 @@ __device__ double intersectionArea(Quadrilateral quad0, Quadrilateral quad1) {
     sortPointsClockwise(allPoints, totalPoints);
 
     // Calculate the area of the polygon formed by the points
-    double intersectArea = polygonArea(allPoints, totalPoints);
-
+    double intersectArea;
+    if (totalPoints == 0){
+        intersectArea = 0;
+    } else {
+        intersectArea = polygonArea(allPoints, totalPoints);
+    }
     return intersectArea;
 }
 
-__device__ double unionArea(Quadrilateral quad0, Quadrilateral quad1, double intersect_area){
+__device__ double unionArea(Quadrilateral& quad0, Quadrilateral& quad1, double intersect_area){
     return polygonArea(quad0) + polygonArea(quad1) - intersect_area;
 }
 
@@ -318,8 +381,15 @@ __global__ void computeIoUKernel(Quadrilateral *quads1, Quadrilateral *quads2, d
     }
 }
 
-const int NUM_QUAD0 = 200;
-const int NUM_QUAD1 = 300;
+__global__ void computeIoUKernelOneToOne(Quadrilateral *quads1, Quadrilateral *quads2, double *output, int numQuads) {
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index < numQuads) {
+        double areaIntersection = intersectionArea(quads1[index], quads2[index]);
+        double areaUnion = unionArea(quads1[index], quads2[index], areaIntersection);
+        output[index] = calculateIoU(areaIntersection, areaUnion);
+    }
+}
 
 int main() {
     cudaError_t err;
@@ -337,23 +407,14 @@ int main() {
         return -1;
     }
 
-    // Initialize the arrays with test quadrilaterals
-    for (int i = 0; i < NUM_QUAD0; ++i) {
-        quads0[i].corners[0] = {0.0, 0.0};
-        quads0[i].corners[1] = {1.0, 0.0};
-        quads0[i].corners[2] = {1.0, 1.0};
-        quads0[i].corners[3] = {0.0, 1.0};
-    }
-    for (int i = 0; i < NUM_QUAD1; ++i) {
-        quads1[i].corners[0] = {0.0, 0.0};
-        quads1[i].corners[1] = {0.5, 0.0};
-        quads1[i].corners[2] = {0.5, 0.5};
-        quads1[i].corners[3] = {0.0, 0.5};
-    }
+    // Initialize the arrays with the provided data
+    initializeQuads(quads0, quadData, NUM_QUAD0, 0); // Initialize quads0 with the first elements
+    initializeQuads(quads1, quadData, NUM_QUAD1, 1); // Initialize quads1 with the second elements
 
     // Allocate memory for the output array
     double *d_output;
-    size_t outputSize = NUM_QUAD0 * NUM_QUAD1 * sizeof(double);
+    cout << NUM_QUADS << endl;
+    size_t outputSize = NUM_QUADS * sizeof(double);
     err = cudaMallocManaged(&d_output, outputSize);
     if (err != cudaSuccess) {
         std::cerr << "CUDA error (cudaMallocManaged for d_output): " << cudaGetErrorString(err) << std::endl;
@@ -361,14 +422,20 @@ int main() {
         cudaFree(quads1);
         return -1;
     }
-    cudaMallocManaged(&d_output, outputSize);
+    // --------------------------------------------------------------------------------------------------
+    // REMOVE THIS BLOCK
+    int numQuads = NUM_QUADS; // This should be the number of quadrilaterals in each set
+    int threadsPerBlock = 256; // This is an arbitrary number, can be tuned for your GPU
+    int blocks = (numQuads + threadsPerBlock - 1) / threadsPerBlock;
 
-    // Calculate the number of blocks and threads
-    dim3 blockSize(16, 16); // You can tune these numbers based on your GPU capabilities
-    dim3 gridSize((NUM_QUAD0 + blockSize.x - 1) / blockSize.x, (NUM_QUAD1 + blockSize.y - 1) / blockSize.y);
-
-    // Launch the kernel
-    computeIoUKernel<<<gridSize, blockSize>>>(quads0, quads1, d_output, NUM_QUAD0, NUM_QUAD1);
+    // Launch the kernel with a one-dimensional grid
+    computeIoUKernelOneToOne<<<blocks, threadsPerBlock>>>(quads0, quads1, d_output, numQuads);
+    // --------------------------------------------------------------------------------------------------
+    // // Calculate the number of blocks and threads
+    // dim3 blockSize(16, 16); // You can tune these numbers based on your GPU capabilities
+    // dim3 gridSize((NUM_QUAD0 + blockSize.x - 1) / blockSize.x, (NUM_QUAD1 + blockSize.y - 1) / blockSize.y);
+    // // Launch the kernel
+    // computeIoUKernel<<<gridSize, blockSize>>>(quads0, quads1, d_output, NUM_QUAD0, NUM_QUAD1);
     err = cudaGetLastError();
     if (err != cudaSuccess) {
         std::cerr << "CUDA error (Kernel launch): " << cudaGetErrorString(err) << std::endl;
@@ -386,7 +453,7 @@ int main() {
         cudaFree(d_output);
         return -1;
     }
-    for (int i = 0; i < 1000; i++){
+    for (int i = 0; i < NUM_QUADS; i++){
         cout << d_output[i] << endl;
     }
     // Free the allocated managed memory
