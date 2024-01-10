@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <chrono>  // For timing
 
 using namespace std;
 
@@ -16,13 +17,6 @@ struct Edge {
 
 struct Quadrilateral {
     Point corners[4];
-};
-
-struct Polygon {
-    // Maximum amount of corners our polygon can have is
-    // 8, 2 quadrilaterals can have maximum of 8 intersections
-    // due to geometric constraints
-    Point corners[8];
 };
 
 // Helper function to calculate the cross product of two points
@@ -187,14 +181,8 @@ vector<Point> findPointInside(Quadrilateral quad_1, Quadrilateral quad_2){
     vector<Point> inside_points;
 
     for (int i = 0; i < 4; i++){
-        if (isPointInsideQuadrilateral(quad_1.corners[i], quad_2) == 1){ // TODO make this one liner after debugging
-            inside_points.push_back(quad_1.corners[i]);
-        }
-        if (isPointInsideQuadrilateral(quad_2.corners[i], quad_1) == 1){ 
-            inside_points.push_back(quad_2.corners[i]);
-        }
-        // if (isPointInsideQuadrilateral(quad_1.corners[i], quad_2) == 1) 
-        // if (isPointInsideQuadrilateral(quad_2.corners[i], quad_1) == 1) inside_points.push_back(quad_2.corners[i]);
+        if (isPointInsideQuadrilateral(quad_1.corners[i], quad_2) == 1) inside_points.push_back(quad_1.corners[i]);
+        if (isPointInsideQuadrilateral(quad_2.corners[i], quad_1) == 1) inside_points.push_back(quad_2.corners[i]);
     }
     return inside_points;
 }
@@ -232,12 +220,20 @@ bool comparePoints(const Point& p1, const Point& p2, const Point& centroid) {
     return angle1 < angle2;
 }
 
+// Sorts a vector of points in clockwise order
 void sortPointsClockwise(std::vector<Point>& points) {
     Point centroid = findCentroid(points);
     std::sort(points.begin(), points.end(),
               [&centroid](const Point& p1, const Point& p2) {
                   return comparePoints(p1, p2, centroid);
               });
+}
+
+// Sorts the points of a Quadrilateral in clockwise order
+void sortPointsClockwise(Quadrilateral& quad) {
+    std::vector<Point> points(quad.corners, quad.corners + 4);
+    sortPointsClockwise(points);
+    std::copy(points.begin(), points.end(), quad.corners);
 }
 
 double polygonArea(vector<Point>& polygon) {
@@ -252,88 +248,29 @@ double polygonArea(vector<Point>& polygon) {
     return std::abs(area) / 2.0;
 }
 
-int test(){
-    vector< vector<Quadrilateral> > testQuads = {
-        // Identical quadrilaterals
-        {{{ {0, 0}, {300, 0}, {300, 300}, {0, 300} }}, {{ {0, 0}, {150, 0}, {150, 150}, {0, 150} }}},
-        // No intersection
-        {{{ {0, 0}, {300, 0}, {300, 300}, {0, 300} }}, {{ {500, 500}, {600, 600}, {700, 750}, {600, 750} }}},
-        // Partial overlap
-        {{{ {200, 200}, {500, 200}, {500, 500}, {200, 500} }}, {{ {300, 300}, {500, 200}, {500, 500}, {200, 500} }}},
-        // One inside the other
-        {{{ {0, 0}, {300, 0}, {300, 300}, {0, 300} }}, {{ {10, 10}, {20, 10}, {20, 20}, {10, 20} }}},
-        // Edge overlap
-        {{{ {0, 0}, {300, 0}, {300, 300}, {0, 300} }}, {{ {10, 10}, {20, 10}, {20, 20}, {10, 20} }}},
-        // Some other tests from GPT
-        {{{ {0, 0}, {350, 0}, {350, 350}, {0, 350} }}, {{ {15, 15}, {25, 15}, {25, 25}, {15, 25} }}},
-        {{{ {0, 0}, {400, 0}, {400, 400}, {0, 400} }}, {{ {30, 30}, {60, 30}, {60, 60}, {30, 60} }}},
-        {{{ {0, 0}, {450, 0}, {450, 450}, {0, 450} }}, {{ {40, 40}, {80, 40}, {80, 80}, {40, 80} }}},
-        {{{ {0, 0}, {500, 0}, {500, 500}, {0, 500} }}, {{ {50, 50}, {100, 50}, {100, 100}, {50, 100} }}},
-        {{{ {0, 0}, {550, 0}, {550, 550}, {0, 550} }}, {{ {5, 5}, {15, 5}, {15, 15}, {5, 15} }}},
-        {{{ {0, 0}, {600, 0}, {600, 600}, {0, 600} }}, {{ {20, 20}, {40, 20}, {40, 40}, {20, 40} }}},
-        {{{ {0, 0}, {650, 0}, {650, 650}, {0, 650} }}, {{ {25, 25}, {50, 25}, {50, 50}, {25, 50} }}},
-        {{{ {0, 0}, {700, 0}, {700, 700}, {0, 700} }}, {{ {10, 10}, {30, 10}, {30, 30}, {10, 30} }}},
-        {{{ {0, 0}, {750, 0}, {750, 750}, {0, 750} }}, {{ {35, 35}, {70, 35}, {70, 70}, {35, 70} }}},
-        {{{ {0, 0}, {800, 0}, {800, 800}, {0, 800} }}, {{ {45, 45}, {90, 45}, {90, 90}, {45, 90} }}},
-        {{{ {0, 0}, {850, 0}, {850, 850}, {0, 850} }}, {{ {55, 55}, {110, 55}, {110, 110}, {55, 110} }}},
-        {{{ {0, 0}, {900, 0}, {900, 900}, {0, 900} }}, {{ {60, 60}, {120, 60}, {120, 120}, {60, 120} }}},
-        {{{ {0, 0}, {950, 0}, {950, 950}, {0, 950} }}, {{ {65, 65}, {130, 65}, {130, 130}, {65, 130} }}},
-        {{{ {0, 0}, {1000, 0}, {1000, 1000}, {0, 1000} }}, {{ {70, 70}, {140, 70}, {140, 140}, {70, 140} }}},
-        {{{ {0, 0}, {1050, 0}, {1050, 1050}, {0, 1050} }}, {{ {75, 75}, {150, 75}, {150, 150}, {75, 150} }}},
-        {{{ {0, 0}, {1100, 0}, {1100, 1100}, {0, 1100} }}, {{ {80, 80}, {160, 80}, {160, 160}, {80, 160} }}},
-        {{{ {0, 0}, {1150, 0}, {1150, 1150}, {0, 1150} }}, {{ {85, 85}, {170, 85}, {170, 170}, {85, 170} }}},
-        {{{ {0, 0}, {350, 0}, {350, 350}, {0, 350} }}, {{ {15, 15}, {25, 15}, {25, 25}, {15, 25} }}},
-        {{{ {0, 0}, {400, 0}, {400, 400}, {0, 400} }}, {{ {30, 30}, {60, 30}, {60, 60}, {30, 60} }}},
-        {{{ {0, 0}, {450, 0}, {450, 450}, {0, 450} }}, {{ {40, 40}, {80, 40}, {80, 80}, {40, 80} }}},
-        {{{ {0, 0}, {500, 0}, {500, 500}, {0, 500} }}, {{ {50, 50}, {100, 50}, {100, 100}, {50, 100} }}},
-        {{{ {0, 0}, {550, 0}, {550, 550}, {0, 550} }}, {{ {5, 5}, {15, 5}, {15, 15}, {5, 15} }}},
-        {{{ {0, 0}, {600, 0}, {600, 600}, {0, 600} }}, {{ {20, 20}, {40, 20}, {40, 40}, {20, 40} }}},
-        {{{ {0, 0}, {650, 0}, {650, 650}, {0, 650} }}, {{ {25, 25}, {50, 25}, {50, 50}, {25, 50} }}},
-        {{{ {0, 0}, {700, 0}, {700, 700}, {0, 700} }}, {{ {10, 10}, {30, 10}, {30, 30}, {10, 30} }}},
-        {{{ {0, 0}, {750, 0}, {750, 750}, {0, 750} }}, {{ {35, 35}, {70, 35}, {70, 70}, {35, 70} }}},
-        {{{ {0, 0}, {800, 0}, {800, 800}, {0, 800} }}, {{ {45, 45}, {90, 45}, {90, 90}, {45, 90} }}},
-        {{{ {0, 0}, {850, 0}, {850, 850}, {0, 850} }}, {{ {55, 55}, {110, 55}, {110, 110}, {55, 110} }}},
-        {{{ {0, 0}, {900, 0}, {900, 900}, {0, 900} }}, {{ {60, 60}, {120, 60}, {120, 120}, {60, 120} }}},
-        {{{ {0, 0}, {950, 0}, {950, 950}, {0, 950} }}, {{ {65, 65}, {130, 65}, {130, 130}, {65, 130} }}},
-        {{{ {0, 0}, {1000, 0}, {1000, 1000}, {0, 1000} }}, {{ {70, 70}, {140, 70}, {140, 140}, {70, 140} }}},
-        {{{ {0, 0}, {1050, 0}, {1050, 1050}, {0, 1050} }}, {{ {75, 75}, {150, 75}, {150, 150}, {75, 150} }}},
-        {{{ {0, 0}, {1100, 0}, {1100, 1100}, {0, 1100} }}, {{ {80, 80}, {160, 80}, {160, 160}, {80, 160} }}},
-        {{{ {20, 200}, {200, 20}, {240, 130}, {150, 400} }}, {{ {130, 40}, {220, 300}, {220, 375}, {130, 215}}}}
-        // MORE TEST CASES TO COME
-    };
-    for (int i = 0; i < testQuads.size(); i++) {
-        auto& quad0 = testQuads[i][0];
-        auto& quad1 = testQuads[i][1];
-        vector<Point> polygon_points;
-        
-        polygon_points = findIntersectionPoints(quad0, quad1);
-        vector<Point> inside_points = findPointInside(quad0, quad1);
-        // Extend polygon points with inside points
-        polygon_points.insert(polygon_points.end(), inside_points.begin(), inside_points.end());
-        sortPointsClockwise(polygon_points);
-        polygon_points.size() > 0 ? cout << polygonArea(polygon_points) << endl : cout << 0 << endl;
-    }
-    return 0;
+double polygonArea(const Quadrilateral& quad) {
+    std::vector<Point> points(quad.corners, quad.corners + 4);
+    return polygonArea(points);
 }
 
-int main(){
-    test();
-    // Quadrilateral quad0{{ {20, 200}, {200, 20}, {240, 130}, {150, 400} }};
-    // Point some_point;
-    // some_point.x = 130;
-    // some_point.y = 40;
-    // cout << isPointInsideQuadrilateral(some_point, quad0) << endl; 
-    // Quadrilateral quad1{{ {0, 0}, {150, 0}, {150, 150}, {0, 150} }};
+double intersectionArea(Quadrilateral quad0, Quadrilateral quad1){
+    vector<Point> polygon_points;
 
-    // // returns 1 if inside, returns 0 on edges and -1 if outside
-    // vector<Point> a = findIntersectionPoints(quad0, quad1);
-    // vector<Point> b = findPointInside(quad0, quad1);
-    // a.insert(a.end(), b.begin(), b.end());
-    // sortPointsClockwise(a);
+    sortPointsClockwise(quad0);
+    sortPointsClockwise(quad1);
+    polygon_points = findIntersectionPoints(quad0, quad1);
+    vector<Point> inside_points = findPointInside(quad0, quad1);
+    // Extend polygon points with inside points
+    polygon_points.insert(polygon_points.end(), inside_points.begin(), inside_points.end());
+    sortPointsClockwise(polygon_points);
+    double intersect_area = polygonArea(polygon_points);
+    return intersect_area;
+}
 
-    // for (int i = 0; i < a.size(); i++){
-    //     cout << "X IS " << a[i].x << " " << "Y IS " << a[i].y << " " << endl;
-    // }
-    // cout << polygonArea(a) << endl;
-    return 0;
+double unionArea(Quadrilateral quad0, Quadrilateral quad1, double intersect_area){
+    return polygonArea(quad0) + polygonArea(quad1) - intersect_area;
+}
+
+double calculateIoU(double intersect_area, double union_area){
+    return intersect_area / union_area;
 }

@@ -336,8 +336,6 @@ int main() {
         cudaFree(quads0); // Clean up previously allocated memory
         return -1;
     }
-    cudaMallocManaged(&quads0, NUM_QUAD0 * sizeof(Quadrilateral));
-    cudaMallocManaged(&quads1, NUM_QUAD1 * sizeof(Quadrilateral));
 
     // Initialize the arrays with test quadrilaterals
     for (int i = 0; i < NUM_QUAD0; ++i) {
@@ -388,7 +386,7 @@ int main() {
         cudaFree(d_output);
         return -1;
     }
-    for (int i = 0; i < 600; i++){
+    for (int i = 0; i < 1000; i++){
         cout << d_output[i] << endl;
     }
     // Free the allocated managed memory
