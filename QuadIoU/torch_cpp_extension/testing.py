@@ -51,4 +51,4 @@ for i in range(1_000_000):
         else:
             not_errors.append(iou_tensor)
 
-error_quads
+print(error_quads)
