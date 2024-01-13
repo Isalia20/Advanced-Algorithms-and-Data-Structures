@@ -116,7 +116,7 @@ __device__ int isPointInsideQuadrilateral(const Point<scalar_t>& point_to_check,
     // For each edge of the quadrilateral
     for (int i = 0; i < 4; i++) {
         // Get the current edge's start and end points
-        Point<scalar_t> start_point = {box[i][0], box[i][1]}; // TODO 
+        Point<scalar_t> start_point = {box[i][0], box[i][1]}; 
         Point<scalar_t> end_point = {box[(i + 1) % 4][0], box[(i + 1) % 4][1]}; // Wrap around to the first point after the last
         // Calculate the cross product to determine where the point is in relation to the edge
         double cross_product = (start_point.y - point_to_check.y) * (end_point.x - point_to_check.x) -
@@ -353,6 +353,7 @@ __device__ bool comparePoints(const Point<scalar_t>& p1, const Point<scalar_t>& 
 // Sorts a vector of points in clockwise order
 template <typename scalar_t>
 __device__ void sortPointsClockwise(at::TensorAccessor<scalar_t, 2, at::RestrictPtrTraits, int> points) {
+    // TODO rewrite bubble sort to someething more efficient
     // Calculate the centroid of the points
     Point<scalar_t> centroid = findCentroid(points);
     
