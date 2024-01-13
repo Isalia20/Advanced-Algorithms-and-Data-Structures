@@ -1,11 +1,8 @@
 #include <torch/extension.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
-#include <thrust/sort.h>
-#include <thrust/execution_policy.h>
 
 template <typename scalar_t>
-
 struct Point {
     scalar_t x, y;
 };
@@ -77,7 +74,7 @@ __device__ int orientation(const Point<scalar_t>& p, const Point<scalar_t>& q, c
     double val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 
     if (fabsf(val) < 1e-10) return 0;  // colinear
-    return (val > 0) ? 1 : 2;  // clock or counterclock wise
+    return (val > 0) ? 1 : 2;  // clockwise
 }
 
 template <typename scalar_t>
@@ -106,7 +103,6 @@ __device__ scalar_t findMaxQuadCoordinate(const at::TensorAccessor<scalar_t, 2, 
 
 template <typename scalar_t>
 __device__ int isPointInsideQuadrilateral(const Point<scalar_t>& point_to_check, const at::TensorAccessor<scalar_t, 2, at::RestrictPtrTraits, int> box) {
-    // Find the maximum x-coordinate of the quadrilateral
     scalar_t max_x = findMaxQuadCoordinate(box, 'x');
     scalar_t max_y = findMaxQuadCoordinate(box, 'y');
     // If the point's x-coordinate is greater than the max x-coordinate, it's outside
@@ -249,7 +245,7 @@ __device__ scalar_t polygonArea(const torch::PackedTensorAccessor32<scalar_t, 2,
         }
     }
 
-    // Calculate the sum for the Shoelace formula
+    // Calculate the sum for the Gaussian formula
     for (int i = j + 1; i < n; ++i) {
         if (polygon[i][0] == -1 && polygon[i][1] == -1) continue; // Skip invalid vertices
         area += (polygon[j][0] * polygon[i][1] - polygon[i][0] * polygon[j][1]);
@@ -334,12 +330,11 @@ __device__ scalar_t computeAngle(const Point<scalar_t>& centroid, const Point<sc
 
 template <typename scalar_t>
 __device__ bool comparePoints(const Point<scalar_t>& p1, const Point<scalar_t>& p2, const Point<scalar_t>& centroid) {
-    const scalar_t EPSILON = 1e-6; // Choose an appropriate epsilon for your use case
+    const scalar_t EPSILON = 1e-6;
 
     scalar_t angle1 = computeAngle(centroid, p1);
     scalar_t angle2 = computeAngle(centroid, p2);
 
-    // Use epsilon to handle precision errors in angle comparison
     if (fabs(angle1 - angle2) < EPSILON) {
         scalar_t dist1 = (p1.x - centroid.x) * (p1.x - centroid.x) +
                          (p1.y - centroid.y) * (p1.y - centroid.y);
@@ -359,7 +354,7 @@ __device__ void sortPointsClockwise(at::TensorAccessor<scalar_t, 2, at::Restrict
     
     bool swapped = true; // Initialize swapped to true to enter the loop
     int n = points.size(0);
-    while (swapped) { // Use a while loop instead of do...while
+    while (swapped) {
         swapped = false; // Set swapped to false at the beginning of the loop
         for (int i = 0; i < n - 1; i++) {
             // Skip points where both x and y are -1
@@ -467,7 +462,7 @@ torch::Tensor calculateIoUCudaTorch(torch::Tensor quad_0, torch::Tensor quad_1) 
     auto allPoints = torch::ones({quad_0.size(0), quad_1.size(0), MAX_INTERSECTIONS * 2, 2}, quad_0.options()) * -1;
 
     // Calculate the number of blocks and threads
-    dim3 blockSize(16, 16); // You can tune these numbers based on your GPU capabilities
+    dim3 blockSize(16, 16);
     dim3 gridSize((quad_0.size(0) + blockSize.x - 1) / blockSize.x, (quad_1.size(0) + blockSize.y - 1) / blockSize.y);
 
     AT_DISPATCH_FLOATING_TYPES(quad_0.scalar_type(), "calculateIoUCudaTorch", ([&] {
