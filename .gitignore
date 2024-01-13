@@ -8,4 +8,6 @@ SkipLists/__pycache__/visualization_parameters.cpython-310.pyc
 SkipLists/statistical_comparisons/count_ops*
 QuadIoU/build/*
 QuadIoU/dist/*
-QuadIoU/quad_iou.egg-info/*
+*.png
+*.DS_Store
+QuadIoU/torch_cpp_extension/quad_iou.egg-info/PKG-INFO
