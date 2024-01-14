@@ -7,6 +7,11 @@ struct Point {
     scalar_t x, y;
 };
 
+enum class Coordinate {
+    X,
+    Y
+};
+
 template <typename scalar_t>
 __device__ int findPointsInside(const at::TensorAccessor<scalar_t, 2, at::RestrictPtrTraits, int> quad_0, 
                                 const at::TensorAccessor<scalar_t, 2, at::RestrictPtrTraits, int> quad_1, 
@@ -78,33 +83,21 @@ __device__ int orientation(const Point<scalar_t>& p, const Point<scalar_t>& q, c
 }
 
 template <typename scalar_t>
-__device__ scalar_t findMaxQuadCoordinate(const at::TensorAccessor<scalar_t, 2, at::RestrictPtrTraits, int> box, char x_or_y){
-    // Find the maximum x-coordinate of the quadrilateral
-    if (x_or_y == 'x'){
-        scalar_t max_x = box[0][0];
-        for (int i = 1; i < 4; ++i) {
-            if (box[i][0] > max_x) {
-                max_x = box[i][0];
-            }
+__device__ scalar_t findMaxQuadCoordinate(const at::TensorAccessor<scalar_t, 2, at::RestrictPtrTraits, int> box, Coordinate coord){
+    // Find the maximum x-coordinate or y-coordinate of the quadrilateral based on the coord value
+    scalar_t max_value = box[0][static_cast<int>(coord)];
+    for (int i = 1; i < 4; ++i) {
+        if (box[i][static_cast<int>(coord)] > max_value) {
+            max_value = box[i][static_cast<int>(coord)];
         }
-        return max_x;
-    } else if (x_or_y == 'y'){
-        scalar_t max_y = box[0][1];
-        for (int i = 1; i < 4; ++i) {
-            if (box[i][1] > max_y) {
-                max_y = box[i][1];
-            }
-        }
-        return max_y;
-    } else {
-        return -1;
     }
+    return max_value;
 }
 
 template <typename scalar_t>
 __device__ int isPointInsideQuadrilateral(const Point<scalar_t>& point_to_check, const at::TensorAccessor<scalar_t, 2, at::RestrictPtrTraits, int> box) {
-    scalar_t max_x = findMaxQuadCoordinate(box, 'x');
-    scalar_t max_y = findMaxQuadCoordinate(box, 'y');
+    scalar_t max_x = findMaxQuadCoordinate(box, Coordinate::X);
+    scalar_t max_y = findMaxQuadCoordinate(box, Coordinate::Y);
     // If the point's x-coordinate is greater than the max x-coordinate, it's outside
     if (point_to_check.x > max_x) return -1;
     if (point_to_check.y > max_y) return -1;
@@ -456,10 +449,10 @@ torch::Tensor calculateIoUCudaTorch(torch::Tensor quad_0, torch::Tensor quad_1) 
     
     const int MAX_INTERSECTIONS = 8; // 8 intersections max
     // Create an output tensor and tensors for calculating intersection area
-    auto iou_matrix = torch::zeros({quad_0.size(0), quad_1.size(0)}, quad_0.options());
-    auto intersectionPoints = torch::ones({quad_0.size(0), quad_1.size(0), MAX_INTERSECTIONS, 2}, quad_0.options()) * -1;
-    auto insidePoints = torch::ones({quad_0.size(0), quad_1.size(0), MAX_INTERSECTIONS, 2}, quad_0.options()) * -1;
-    auto allPoints = torch::ones({quad_0.size(0), quad_1.size(0), MAX_INTERSECTIONS * 2, 2}, quad_0.options()) * -1;
+    torch::Tensor iou_matrix = torch::zeros({quad_0.size(0), quad_1.size(0)}, quad_0.options());
+    torch::Tensor intersectionPoints = torch::ones({quad_0.size(0), quad_1.size(0), MAX_INTERSECTIONS, 2}, quad_0.options()) * -1;
+    torch::Tensor insidePoints = torch::ones({quad_0.size(0), quad_1.size(0), MAX_INTERSECTIONS, 2}, quad_0.options()) * -1;
+    torch::Tensor allPoints = torch::ones({quad_0.size(0), quad_1.size(0), MAX_INTERSECTIONS * 2, 2}, quad_0.options()) * -1;
 
     // Calculate the number of blocks and threads
     dim3 blockSize(16, 16);
