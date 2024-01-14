@@ -76,8 +76,7 @@ __device__ int findIntersectionPoints(const at::TensorAccessor<scalar_t, 2, at::
 
 template <typename scalar_t>
 __device__ int orientation(const Point<scalar_t>& p, const Point<scalar_t>& q, const Point<scalar_t>& r) {
-    double val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
-
+    scalar_t val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
     if (fabsf(val) < 1e-10) return 0;  // colinear
     return (val > 0) ? 1 : 2;  // clockwise
 }
@@ -108,7 +107,7 @@ __device__ int isPointInsideQuadrilateral(const Point<scalar_t>& point_to_check,
         Point<scalar_t> start_point = {box[i][0], box[i][1]}; 
         Point<scalar_t> end_point = {box[(i + 1) % 4][0], box[(i + 1) % 4][1]}; // Wrap around to the first point after the last
         // Calculate the cross product to determine where the point is in relation to the edge
-        double cross_product = (start_point.y - point_to_check.y) * (end_point.x - point_to_check.x) -
+        scalar_t cross_product = (start_point.y - point_to_check.y) * (end_point.x - point_to_check.x) -
                                 (start_point.x - point_to_check.x) * (end_point.y - point_to_check.y);
         if (cross_product > 0) {
             return -1; // Point is outside the quadrilateral
@@ -132,16 +131,16 @@ __device__ bool doIntersect(const Point<scalar_t>& p1, const Point<scalar_t>& q1
     // General case
     if (o1 != o2 && o3 != o4) {
         // Line AB represented as a1x + b1y = c1
-        double a1 = q1.y - p1.y;
-        double b1 = p1.x - q1.x;
-        double c1 = a1 * (p1.x) + b1 * (p1.y);
+        scalar_t a1 = q1.y - p1.y;
+        scalar_t b1 = p1.x - q1.x;
+        scalar_t c1 = a1 * (p1.x) + b1 * (p1.y);
 
         // Line CD represented as a2x + b2y = c2
-        double a2 = q2.y - p2.y;
-        double b2 = p2.x - q2.x;
-        double c2 = a2 * (p2.x) + b2 * (p2.y);
+        scalar_t a2 = q2.y - p2.y;
+        scalar_t b2 = p2.x - q2.x;
+        scalar_t c2 = a2 * (p2.x) + b2 * (p2.y);
 
-        double determinant = a1 * b2 - a2 * b1;
+        scalar_t determinant = a1 * b2 - a2 * b1;
 
         if (abs(determinant) < 1e-10) {
             return false; // The lines are parallel. This is simplified
@@ -338,6 +337,16 @@ __device__ bool comparePoints(const Point<scalar_t>& p1, const Point<scalar_t>& 
     return angle1 < angle2;
 }
 
+template<typename scalar_t>
+__device__ void swapPoints(at::TensorAccessor<scalar_t, 2, at::RestrictPtrTraits, int> points, int i){
+    scalar_t tempX = points[i][0];
+    scalar_t tempY = points[i][1];
+    points[i][0] = points[i + 1][0];
+    points[i][1] = points[i + 1][1];
+    points[i + 1][0] = tempX;
+    points[i + 1][1] = tempY;
+}
+
 // Sorts a vector of points in clockwise order(can be upgraded to a better sorting algorithm)
 template <typename scalar_t>
 __device__ void sortPointsClockwise(at::TensorAccessor<scalar_t, 2, at::RestrictPtrTraits, int> points) {
@@ -358,12 +367,7 @@ __device__ void sortPointsClockwise(at::TensorAccessor<scalar_t, 2, at::Restrict
             // Using the comparison function to determine if the points are out of order
             if (!comparePoints(p1, p2, centroid)) {
                 // Swap points if they are out of order
-                scalar_t tempX = points[i][0];
-                scalar_t tempY = points[i][1];
-                points[i][0] = points[i + 1][0];
-                points[i][1] = points[i + 1][1];
-                points[i + 1][0] = tempX;
-                points[i + 1][1] = tempY;
+                swapPoints(points, i);
                 swapped = true; // Indicate a swap occurred
             }
         }
