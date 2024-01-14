@@ -414,8 +414,9 @@ __device__ scalar_t calculateIoUCuda(const at::TensorAccessor<scalar_t, 2, at::R
                                      at::TensorAccessor<scalar_t, 2, at::RestrictPtrTraits, int> insidePoints,
                                      at::TensorAccessor<scalar_t, 2, at::RestrictPtrTraits, int> allPoints,
                                      const int MAX_INTERSECTIONS){
+    const scalar_t epsilon = 0.00001;
     scalar_t intersect_area = intersectionAreaCuda(quad_0, quad_1, intersectionPoints, insidePoints, allPoints, MAX_INTERSECTIONS);
-    return intersect_area / unionAreaCuda(quad_0, quad_1, intersect_area);
+    return intersect_area / (epsilon + unionAreaCuda(quad_0, quad_1, intersect_area));
 }
 
 template <typename scalar_t>

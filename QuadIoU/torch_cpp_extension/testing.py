@@ -42,7 +42,6 @@ for i in range(1_000_000):
     quad_1_tensor = torch.tensor(quad_1).unsqueeze(0).cuda()
     quad_2_tensor = torch.tensor(quad_2).unsqueeze(0).cuda()
     if is_convex(quad_poly_1) and is_convex(quad_poly_2):
-        print(1)
         iou_shapely = calc_iou_poly(quad_poly_1, quad_poly_2)
         iou_tensor = quad_iou.calculateIoU(quad_1_tensor, quad_2_tensor).item()
         if abs(iou_shapely - iou_tensor) > 0.01:
