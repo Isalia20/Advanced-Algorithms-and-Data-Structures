@@ -338,10 +338,9 @@ __device__ bool comparePoints(const Point<scalar_t>& p1, const Point<scalar_t>& 
     return angle1 < angle2;
 }
 
-// Sorts a vector of points in clockwise order
+// Sorts a vector of points in clockwise order(can be upgraded to a better sorting algorithm)
 template <typename scalar_t>
 __device__ void sortPointsClockwise(at::TensorAccessor<scalar_t, 2, at::RestrictPtrTraits, int> points) {
-    // TODO rewrite bubble sort to someething more efficient
     // Calculate the centroid of the points
     Point<scalar_t> centroid = findCentroid(points);
     
